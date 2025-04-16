@@ -8,12 +8,12 @@ import RemoveTokenButton from "./remove-token-button";
 import AlertBox from "./alert-box";
 
 export default function ButtonGroup() {
-  const { status } = useServerStatus();
+  const { serverStatus } = useServerStatus();
   return (
     <>
       <div className="my-4 flex flex-col gap-y-3.5">
-        {(status === "offline" || status === "starting") && <StartButton />}
-        {(status === "online" || status === "restarting") && (
+        {(serverStatus === "offline" || serverStatus === "starting") && <StartButton />}
+        {(serverStatus === "online" || serverStatus === "restarting") && (
           <div className="flex justify-between gap-x-3.5">
             <RestartButton />
             <StopButton />

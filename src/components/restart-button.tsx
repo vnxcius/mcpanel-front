@@ -8,15 +8,15 @@ import { useServerStatus } from "@/contexts/ServerStatusContext";
 
 export default function RestartButton() {
   const { setState } = useServerAction();
-  const { setStatus } = useServerStatus();
+  const { setServerStatus } = useServerStatus();
   const [isPending, startTransition] = useTransition();
 
   const handleRestart = () => {
-    setStatus("restarting");
+    setServerStatus("restarting");
     startTransition(async () => {
       const state = await restartServer();
       setState(state);
-      setStatus(state.success ? "online" : "offline");
+      setServerStatus(state.success ? "online" : "offline");
     });
   };
 

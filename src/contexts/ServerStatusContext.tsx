@@ -5,13 +5,13 @@ import { createContext, useContext, useState } from "react";
 export type ServerStatus = "starting" | "online" | "offline" | "restarting";
 
 interface ServerStatusContextType {
-  status: ServerStatus;
-  setStatus: (status: ServerStatus) => void;
+  serverStatus: ServerStatus;
+  setServerStatus: (serverStatus: ServerStatus) => void;
 }
 
 const ServerStatusContext = createContext<ServerStatusContextType>({
-  status: "offline",
-  setStatus: () => {},
+  serverStatus: "offline",
+  setServerStatus: () => {},
 });
 
 export const useServerStatus = () => useContext(ServerStatusContext);
@@ -21,10 +21,10 @@ export function ServerStatusProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [status, setStatus] = useState<ServerStatus>("offline");
+  const [serverStatus, setServerStatus] = useState<ServerStatus>("offline");
 
   return (
-    <ServerStatusContext.Provider value={{ status, setStatus }}>
+    <ServerStatusContext.Provider value={{ serverStatus, setServerStatus }}>
       {children}
     </ServerStatusContext.Provider>
   );

@@ -1,22 +1,45 @@
 "use client";
 
-import { startServer } from "@/app/actions";
 import { useTransition } from "react";
 import { Play } from "@phosphor-icons/react";
 import { useServerAction } from "@/contexts/ServerActionContext";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
+import { ValidToken } from "@/lib/token";
 
 export default function StartButton() {
-  const { setStatus } = useServerStatus();
+  const { setServerStatus } = useServerStatus();
   const { setState } = useServerAction();
   const [isPending, startTransition] = useTransition();
 
   const handleStart = () => {
-    setStatus("starting");
+    setServerStatus("starting");
     startTransition(async () => {
-      const state = await startServer();
-      setState(state);
-      setStatus(state.success ? "online" : "offline");
+      const token = await ValidToken();
+      try {
+        const res = await fetch("http://localhost:4000/api/v1/stop", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+
+        if (!res.ok) {
+          setServerStatus("offline");
+          const data = await res.json();
+          return setState({ error: true, message: data.message });
+        }
+
+        setState({ success: true, message: "Servidor ligado com sucesso" });
+        setServerStatus("online");
+      } catch (error) {
+        if (error instanceof Error) {
+          setServerStatus("offline");
+          return setState({ error: true, message: error.message });
+        }
+
+        console.log(error);
+        setState({ error: true, message: "Erro desconhecido" });
+        setServerStatus("offline");
+      }
     });
   };
 

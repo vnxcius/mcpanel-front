@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { Square } from "@phosphor-icons/react";
 import { useServerAction } from "@/contexts/ServerActionContext";
+import { useServerStatus } from "@/contexts/ServerStatusContext";
 
 const initialState = {
   success: false,
@@ -34,9 +35,11 @@ function SubmitButton({ disabled }: { disabled?: boolean }) {
 
 export default function StopButton() {
   const { setState } = useServerAction();
+  const { setServerStatus } = useServerStatus();
   const [_, formAction] = useActionState(async () => {
     const state = await stopServer();
     setState(state);
+    setServerStatus("offline");
     return state;
   }, initialState);
 
