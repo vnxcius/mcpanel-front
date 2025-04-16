@@ -1,11 +1,10 @@
 "use client";
 
-import { storeToken } from "@/app/actions";
-import { useActionState, useEffect, useState } from "react";
-import { useFormStatus } from "react-dom";
+import { useEffect, useState, useTransition } from "react";
 import { cn } from "@/lib/utils";
 import { useServerAction } from "@/contexts/ServerActionContext";
 import AlertBox from "./alert-box";
+import { useRouter } from "next/navigation";
 
 const initialState = {
   error: false,
@@ -13,31 +12,47 @@ const initialState = {
   message: "",
 };
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      type="submit"
-      aria-disabled={pending}
-      disabled={pending}
-      className="after:bg-button-shadow relative w-full cursor-pointer border-2 border-black bg-neutral-300 px-6 pt-2 pb-3 text-center text-neutral-800 transition-colors after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full hover:translate-y-px hover:bg-neutral-300/90 hover:after:h-[3px]"
-    >
-      {pending ? "Verificando..." : "Verificar token"}
-    </button>
-  );
-}
-
 export default function TokenInput() {
   const { state, setState } = useServerAction();
-  const [_, formAction] = useActionState(
-    async (prevState: { message: string }, formData: FormData) => {
-      const state = await storeToken(prevState, formData);
-      setState(state);
-      return state;
-    },
-    initialState,
-  );
+  const [isPending, startTransition] = useTransition();
   const [token, setToken] = useState("");
+  const router = useRouter();
+
+  const handleVerifyToken = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (token.length <= 0) {
+      return setState({
+        warning: true,
+        message: "Preencha o token corretamente",
+      });
+    }
+
+    startTransition(async () => {
+      const res = await fetch("http://localhost:4000/v1/verify-token", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        return setState({ error: true, message: data.message });
+      }
+
+      setState({
+        success: true,
+        message: "Token verificado. Redirecionando...",
+      });
+
+      setTimeout(() => {
+        router.refresh();
+        setState(initialState);
+      }, 1000);
+    });
+  };
 
   useEffect(() => {
     if (state.error || state.warning) {
@@ -45,7 +60,7 @@ export default function TokenInput() {
     }
   }, [token]);
   return (
-    <form action={formAction} className="my-4">
+    <form onSubmit={handleVerifyToken} className="my-4">
       <div className="my-14 space-y-2">
         <label className="block text-sm text-neutral-300">
           Token de acesso
@@ -69,7 +84,14 @@ export default function TokenInput() {
         />
         <AlertBox />
       </div>
-      <SubmitButton />
+      <button
+        type="submit"
+        aria-disabled={isPending}
+        disabled={isPending}
+        className="after:bg-button-shadow relative w-full cursor-pointer border-2 border-black bg-neutral-300 px-6 pt-2 pb-3 text-center text-neutral-800 transition-colors after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full hover:translate-y-px hover:bg-neutral-300/90 hover:after:h-[3px]"
+      >
+        {isPending ? "Verificando..." : "Verificar token"}
+      </button>
     </form>
   );
 }
