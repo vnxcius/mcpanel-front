@@ -29,28 +29,35 @@ export default function TokenInput() {
     }
 
     startTransition(async () => {
-      const res = await fetch("http://localhost:4000/v1/verify-token", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
+      try {
+        const res = await fetch("http://localhost:4000/v1/verify-token", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
 
-      const data = await res.json();
+        if (!res.ok) {
+          const data = await res.json();
+          return setState({ error: true, message: data.message });
+        }
 
-      if (!res.ok) {
-        return setState({ error: true, message: data.message });
+        setState({
+          success: true,
+          message: "Token verificado. Redirecionando...",
+        });
+
+        setTimeout(() => {
+          router.refresh();
+          setState(initialState);
+        }, 1000);
+      } catch (error) {
+        if (error instanceof Error) {
+          return setState({ error: true, message: error.message });
+        }
+
+        return setState({ error: true, message: "Erro ao verificar token" });
       }
-
-      setState({
-        success: true,
-        message: "Token verificado. Redirecionando...",
-      });
-
-      setTimeout(() => {
-        router.refresh();
-        setState(initialState);
-      }, 1000);
     });
   };
 
