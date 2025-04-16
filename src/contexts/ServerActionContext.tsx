@@ -17,11 +17,11 @@ const initialState: ServerActionState = {
 };
 
 const ServerActionContext = createContext<{
-  state: ServerActionState;
-  setState: (state: ServerActionState) => void;
+  actionState: ServerActionState;
+  setActionState: (actionState: ServerActionState) => void;
 }>({
-  state: initialState,
-  setState: () => {},
+  actionState: initialState,
+  setActionState: () => {},
 });
 
 export const useServerAction = () => useContext(ServerActionContext);
@@ -31,10 +31,11 @@ export function ServerActionProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [state, setState] = useState<ServerActionState>(initialState);
+  const [actionState, setActionState] =
+    useState<ServerActionState>(initialState);
 
   return (
-    <ServerActionContext.Provider value={{ state, setState }}>
+    <ServerActionContext.Provider value={{ actionState, setActionState }}>
       {children}
     </ServerActionContext.Provider>
   );

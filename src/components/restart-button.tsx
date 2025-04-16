@@ -1,30 +1,67 @@
 "use client";
 
-import { restartServer } from "@/app/actions";
 import { useTransition } from "react";
 import { ArrowsClockwise } from "@phosphor-icons/react";
 import { useServerAction } from "@/contexts/ServerActionContext";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
+import { ValidToken } from "@/lib/token";
 
-export default function RestartButton() {
-  const { setState } = useServerAction();
-  const { setServerStatus } = useServerStatus();
+interface RestartButtonProps {
+  onRestartInitiated: () => void;
+}
+
+export default function RestartButton({
+  onRestartInitiated,
+}: RestartButtonProps) {
+  const { setActionState } = useServerAction();
+  const { serverStatus } = useServerStatus();
   const [isPending, startTransition] = useTransition();
+  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
 
   const handleRestart = () => {
-    setServerStatus("restarting");
     startTransition(async () => {
-      const state = await restartServer();
-      setState(state);
-      setServerStatus(state.success ? "online" : "offline");
+      const token = await ValidToken();
+
+      if (!token) {
+        setActionState({
+          error: true,
+          message: "Authentication token not found or invalid.",
+        });
+        return;
+      }
+
+      try {
+        const res = await fetch(serverUrl + "/api/v1/restart", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          return setActionState({ error: true, message: data.message });
+        }
+
+        setActionState({ warning: true, message: "Reiniciando servidor..." });
+        onRestartInitiated();
+      } catch (error) {
+        if (error instanceof Error) {
+          return setActionState({ error: true, message: error.message });
+        }
+
+        console.log(error);
+        setActionState({ error: true, message: "Erro desconhecido" });
+      }
     });
   };
 
   return (
     <button
       type="submit"
-      aria-disabled={isPending}
-      disabled={isPending}
+      aria-disabled={isPending || serverStatus !== "online"}
+      disabled={isPending || serverStatus !== "online"}
       onClick={handleRestart}
       className="relative flex w-full flex-1 cursor-pointer items-center justify-center gap-1.5 border-2 border-black bg-amber-400 pt-2 pb-3 text-neutral-800 transition-colors after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:bg-amber-400 after:brightness-50 hover:translate-y-px hover:bg-amber-500/90 hover:after:h-[3px] disabled:bg-amber-400/50"
     >
@@ -33,7 +70,7 @@ export default function RestartButton() {
         weight="fill"
         className={isPending ? "animate-spin" : ""}
       />
-      {isPending ? "Reiniciando..." : "Reiniciar servidor"}
+      Reiniciar servidor
     </button>
   );
 }

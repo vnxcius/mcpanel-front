@@ -1,51 +1,82 @@
 "use client";
 
-import { stopServer } from "@/app/actions";
-import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
+import { useTransition } from "react";
 import { Square } from "@phosphor-icons/react";
 import { useServerAction } from "@/contexts/ServerActionContext";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
+import { ValidToken } from "@/lib/token";
 
-const initialState = {
-  success: false,
-  error: false,
-  warning: false,
-  message: "",
-};
+interface StopButtonProps {
+  onStopInitiated: () => void;
+}
 
-function SubmitButton({ disabled }: { disabled?: boolean }) {
-  const { pending } = useFormStatus();
+export default function StopButton({ onStopInitiated }: StopButtonProps) {
+  const { setActionState } = useServerAction();
+  const { serverStatus } = useServerStatus();
+  const [isPending, startTransition] = useTransition();
+  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+
+  const handleStop = () => {
+    startTransition(async () => {
+      const token = await ValidToken();
+
+      if (!token) {
+        setActionState({
+          error: true,
+          message: "Authentication token not found or invalid.",
+        });
+        return;
+      }
+
+      try {
+        const res = await fetch(serverUrl + "/api/v1/stop", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          return setActionState({ error: true, message: data.message });
+        }
+
+        setActionState({ warning: true, message: "Desligando o servidor..." });
+        onStopInitiated();
+      } catch (error) {
+        if (error instanceof Error) {
+          return setActionState({ error: true, message: error.message });
+        }
+
+        console.log(error);
+        setActionState({ error: true, message: "Erro desconhecido" });
+      }
+    });
+  };
+
   return (
     <button
       type="submit"
-      aria-disabled={pending || disabled}
-      disabled={pending || disabled}
-      className="relative flex w-full cursor-pointer items-center justify-center gap-1.5 border-2 border-black bg-red-500 pt-2 pb-3 text-neutral-100 transition-colors after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:bg-red-500 after:brightness-50 hover:translate-y-px hover:bg-red-500/90 hover:after:h-[3px] disabled:bg-red-500/50"
+      aria-disabled={
+        isPending ||
+        serverStatus === "stopping" ||
+        serverStatus === "restarting"
+      }
+      disabled={
+        isPending ||
+        serverStatus === "stopping" ||
+        serverStatus === "restarting"
+      }
+      onClick={handleStop}
+      className="relative flex w-full flex-1 cursor-pointer items-center justify-center gap-1.5 border-2 border-black bg-red-500 pt-2 pb-3 text-neutral-100 transition-colors after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:bg-red-500 after:brightness-50 hover:translate-y-px hover:bg-red-500/90 hover:after:h-[3px] disabled:bg-red-500/50"
     >
       <Square
         size={14}
         weight="fill"
-        className={pending ? "animate-pulse" : ""}
+        className={isPending ? "animate-pulse" : ""}
       />
-      {pending ? "Desligando..." : "Desligar servidor"}
+      Desligar servidor
     </button>
-  );
-}
-
-export default function StopButton() {
-  const { setState } = useServerAction();
-  const { setServerStatus } = useServerStatus();
-  const [_, formAction] = useActionState(async () => {
-    const state = await stopServer();
-    setState(state);
-    setServerStatus("offline");
-    return state;
-  }, initialState);
-
-  return (
-    <form action={formAction} className="flex-1">
-      <SubmitButton />
-    </form>
   );
 }

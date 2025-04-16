@@ -6,39 +6,51 @@ import { useServerAction } from "@/contexts/ServerActionContext";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
 import { ValidToken } from "@/lib/token";
 
-export default function StartButton() {
-  const { setServerStatus } = useServerStatus();
-  const { setState } = useServerAction();
+interface StartButtonProps {
+  onStartInitiated: () => void;
+}
+
+export default function StartButton({ onStartInitiated }: StartButtonProps) {
+  const { setActionState } = useServerAction();
+  const { serverStatus } = useServerStatus();
   const [isPending, startTransition] = useTransition();
+  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
 
   const handleStart = () => {
-    setServerStatus("starting");
     startTransition(async () => {
       const token = await ValidToken();
+
+      if (!token) {
+        setActionState({
+          error: true,
+          message: "Authentication token not found or invalid.",
+        });
+        return;
+      }
+
       try {
-        const res = await fetch("http://localhost:4000/api/v1/stop", {
+        const res = await fetch(serverUrl + "/api/v1/start", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         });
 
         if (!res.ok) {
-          setServerStatus("offline");
           const data = await res.json();
-          return setState({ error: true, message: data.message });
+          return setActionState({ error: true, message: data.message });
         }
 
-        setState({ success: true, message: "Servidor ligado com sucesso" });
-        setServerStatus("online");
+        setActionState({ warning: true, message: "Ligando o servidor..." });
+        onStartInitiated();
       } catch (error) {
         if (error instanceof Error) {
-          setServerStatus("offline");
-          return setState({ error: true, message: error.message });
+          return setActionState({ error: true, message: error.message });
         }
 
         console.log(error);
-        setState({ error: true, message: "Erro desconhecido" });
-        setServerStatus("offline");
+        setActionState({ error: true, message: "Erro desconhecido" });
       }
     });
   };
@@ -46,13 +58,13 @@ export default function StartButton() {
   return (
     <button
       type="submit"
-      aria-disabled={isPending}
-      disabled={isPending}
+      aria-disabled={isPending || serverStatus !== "offline"}
+      disabled={isPending || serverStatus !== "offline"}
       onClick={handleStart}
       className="bg-accent disabled:bg-accent/50 after:bg-accent hover:bg-accent/90 relative flex w-full cursor-pointer items-center justify-center gap-1.5 border-2 border-black pt-2 pb-3 text-neutral-800 transition-colors after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:brightness-50 hover:translate-y-px hover:after:h-[3px]"
     >
       <Play size={14} weight="fill" />
-      {isPending ? "Ligando o servidor..." : "Ligar servidor"}
+      Ligar servidor
     </button>
   );
 }
