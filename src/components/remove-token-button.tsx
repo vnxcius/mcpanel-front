@@ -13,9 +13,8 @@ export default function RemoveTokenButton() {
       className={cn(
         geist.className,
         "mx-auto mt-20 flex w-fit cursor-pointer items-center gap-1 text-sm",
-        "text-red-400 hover:underline underline-offset-2",
-      )
-      }
+        "text-red-400 underline-offset-2 hover:underline",
+      )}
       onClick={() =>
         confirm(
           "Você perderá acesso ao servidor e será necessário inserir o token novamente. Confirmar?",

@@ -18,7 +18,8 @@ export default function AlertBox() {
           "bg-red-500 text-neutral-100 after:bg-red-500 after:brightness-50",
         actionState.warning &&
           "bg-orange-400 text-neutral-100 after:bg-orange-400 after:brightness-50",
-        actionState.success && "bg-green-500 text-neutral-800 after:bg-green-800",
+        actionState.success &&
+          "bg-green-500 text-neutral-800 after:bg-green-800",
       )}
     >
       {actionState.error && <XCircle size={16} weight="bold" />}

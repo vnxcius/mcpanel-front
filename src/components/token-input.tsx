@@ -30,12 +30,15 @@ export default function TokenInput() {
 
     startTransition(async () => {
       try {
-        const res = await fetch("http://localhost:4000/v1/verify-token", {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
-        });
+        const res = await fetch(
+          process.env.NEXT_PUBLIC_SERVER_URL + "/v1/verify-token",
+          {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token }),
+          },
+        );
 
         if (!res.ok) {
           const data = await res.json();
@@ -98,7 +101,7 @@ export default function TokenInput() {
         type="submit"
         aria-disabled={isPending}
         disabled={isPending}
-        className="after:bg-button-shadow relative w-full cursor-pointer border-2 border-black bg-neutral-300 px-6 pt-2 pb-3 text-center text-neutral-800 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-neutral-300 before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full hover:translate-y-px hover:bg-neutral-300/90 disabled:bg-neutral-500 hover:after:h-[3px] disabled:before:bg-neutral-300/50"
+        className="after:bg-button-shadow relative w-full cursor-pointer border-2 border-black bg-neutral-300 px-6 pt-2 pb-3 text-center text-neutral-800 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-neutral-300 before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full hover:translate-y-px hover:bg-neutral-300/90 hover:after:h-[3px] disabled:bg-neutral-500 disabled:before:bg-neutral-300/50"
       >
         {isPending ? "Verificando..." : "Verificar token"}
       </button>

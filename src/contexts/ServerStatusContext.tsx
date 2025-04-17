@@ -31,8 +31,10 @@ export function ServerStatusProvider({
 
   useEffect(() => {
     console.log("Setting up event source...");
-    const sseUrl = "http://localhost:4000/v1/sse";
-    eventSourceRef.current = new EventSource(sseUrl);
+    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+    if (!serverUrl) return console.error("NEXT_PUBLIC_SERVER_URL not found.");
+
+    eventSourceRef.current = new EventSource(serverUrl + "/v1/sse");
 
     eventSourceRef.current.onmessage = (event) => {
       try {
