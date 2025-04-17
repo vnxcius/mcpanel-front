@@ -13,7 +13,7 @@ const initialState = {
 };
 
 export default function TokenInput() {
-  const { state, setState } = useServerAction();
+  const { actionState, setActionState } = useServerAction();
   const [isPending, startTransition] = useTransition();
   const [token, setToken] = useState("");
   const router = useRouter();
@@ -22,7 +22,7 @@ export default function TokenInput() {
     e.preventDefault();
 
     if (token.length <= 0) {
-      return setState({
+      return setActionState({
         warning: true,
         message: "Preencha o token corretamente",
       });
@@ -39,31 +39,34 @@ export default function TokenInput() {
 
         if (!res.ok) {
           const data = await res.json();
-          return setState({ error: true, message: data.message });
+          return setActionState({ error: true, message: data.message });
         }
 
-        setState({
+        setActionState({
           success: true,
           message: "Token verificado. Redirecionando...",
         });
 
         setTimeout(() => {
           router.refresh();
-          setState(initialState);
+          setActionState(initialState);
         }, 1000);
       } catch (error) {
         if (error instanceof Error) {
-          return setState({ error: true, message: error.message });
+          return setActionState({ error: true, message: error.message });
         }
 
-        return setState({ error: true, message: "Erro ao verificar token" });
+        return setActionState({
+          error: true,
+          message: "Erro ao verificar token",
+        });
       }
     });
   };
 
   useEffect(() => {
-    if (state.error || state.warning) {
-      setState(initialState);
+    if (actionState.error || actionState.warning) {
+      setActionState(initialState);
     }
   }, [token]);
   return (
@@ -80,8 +83,8 @@ export default function TokenInput() {
           className={cn(
             "w-full border-2 border-neutral-700 bg-black p-3",
             "text-neutral-50 placeholder:text-neutral-500 focus:outline-none",
-            state.error && "border-red-500",
-            state.warning && "border-yellow-500",
+            actionState.error && "border-red-500",
+            actionState.warning && "border-yellow-500",
           )}
           autoComplete="off"
           placeholder="Insira o token aqui"
@@ -95,7 +98,7 @@ export default function TokenInput() {
         type="submit"
         aria-disabled={isPending}
         disabled={isPending}
-        className="after:bg-button-shadow relative w-full cursor-pointer border-2 border-black bg-neutral-300 px-6 pt-2 pb-3 text-center text-neutral-800 transition-colors after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full hover:translate-y-px hover:bg-neutral-300/90 hover:after:h-[3px]"
+        className="after:bg-button-shadow relative w-full cursor-pointer border-2 border-black bg-neutral-300 px-6 pt-2 pb-3 text-center text-neutral-800 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-neutral-300 before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full hover:translate-y-px hover:bg-neutral-300/90 disabled:bg-neutral-500 hover:after:h-[3px] disabled:before:bg-neutral-300/50"
       >
         {isPending ? "Verificando..." : "Verificar token"}
       </button>

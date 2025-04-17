@@ -8,7 +8,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-accent: #6cc349;
+  --color-accent: #3b8526;
+  --color-accent-foreground: #fff;
   --color-button-shadow: #404040;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
