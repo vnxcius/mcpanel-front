@@ -4,7 +4,6 @@ import { useTransition } from "react";
 import { ArrowsClockwise } from "@phosphor-icons/react";
 import { useServerAction } from "@/contexts/ServerActionContext";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
-import { ValidToken } from "@/lib/token";
 
 interface RestartButtonProps {
   onRestartInitiated: () => void;
@@ -20,7 +19,7 @@ export default function RestartButton({
 
   const handleRestart = () => {
     startTransition(async () => {
-      const token = await ValidToken();
+      const token = localStorage.getItem("sss-token");
 
       if (!token) {
         setActionState({

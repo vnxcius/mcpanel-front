@@ -4,7 +4,6 @@ import { useTransition } from "react";
 import { Play } from "@phosphor-icons/react";
 import { useServerAction } from "@/contexts/ServerActionContext";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
-import { ValidToken } from "@/lib/token";
 
 interface StartButtonProps {
   onStartInitiated: () => void;
@@ -18,7 +17,7 @@ export default function StartButton({ onStartInitiated }: StartButtonProps) {
 
   const handleStart = () => {
     startTransition(async () => {
-      const token = await ValidToken();
+      const token = localStorage.getItem("sss-token");
 
       if (!token) {
         setActionState({

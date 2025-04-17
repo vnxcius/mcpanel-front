@@ -4,7 +4,6 @@ import { useEffect, useState, useTransition } from "react";
 import { cn } from "@/lib/utils";
 import { useServerAction } from "@/contexts/ServerActionContext";
 import AlertBox from "./alert-box";
-import { useRouter } from "next/navigation";
 
 const initialState = {
   error: false,
@@ -16,7 +15,6 @@ export default function TokenInput() {
   const { actionState, setActionState } = useServerAction();
   const [isPending, startTransition] = useTransition();
   const [token, setToken] = useState("");
-  const router = useRouter();
 
   const handleVerifyToken = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -50,8 +48,10 @@ export default function TokenInput() {
           message: "Token verificado. Redirecionando...",
         });
 
+        localStorage.setItem("sss-token", token);
+
         setTimeout(() => {
-          router.refresh();
+          window.location.reload();
           setActionState(initialState);
         }, 1000);
       } catch (error) {
