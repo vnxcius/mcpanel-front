@@ -29,12 +29,6 @@ export default function ButtonGroup() {
         message: "Servidor iniciado com sucesso!",
       });
       setIsAwaitingStartResult(false);
-    } else if (isAwaitingStartResult && serverStatus === "offline") {
-      setActionState({
-        error: true,
-        message: "Falha ao iniciar o servidor (ficou offline).",
-      });
-      setIsAwaitingStartResult(false);
     }
 
     // Handle Stop result
