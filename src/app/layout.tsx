@@ -4,7 +4,7 @@ import { ServerActionProvider } from "@/contexts/ServerActionContext";
 import { ServerStatusProvider } from "@/contexts/ServerStatusContext";
 
 export const metadata: Metadata = {
-  title: "Start/Stop Service | SSS Minecraft",
+  title: "ServerHub | mmfc.vncius.dev",
   description: "Start/Stop Service Minecraft Server",
 };
 
@@ -16,9 +16,9 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body>
-        <ServerStatusProvider>
-          <ServerActionProvider>{children}</ServerActionProvider>
-        </ServerStatusProvider>
+        <ServerActionProvider>
+          <ServerStatusProvider>{children}</ServerStatusProvider>
+        </ServerActionProvider>
       </body>
     </html>
   );

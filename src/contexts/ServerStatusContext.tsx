@@ -1,22 +1,22 @@
 "use client";
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useServerAction } from "./ServerActionContext";
 
 export type ServerStatus =
   | "starting"
   | "online"
   | "offline"
   | "restarting"
-  | "stopping";
+  | "stopping"
+  | undefined;
 
 interface ServerStatusContextType {
   serverStatus: ServerStatus;
-  // setServerStatus: (serverStatus: ServerStatus) => void;
 }
 
 const ServerStatusContext = createContext<ServerStatusContextType>({
-  serverStatus: "offline",
-  // setServerStatus: () => {},
+  serverStatus: undefined,
 });
 
 export const useServerStatus = () => useContext(ServerStatusContext);
@@ -26,11 +26,11 @@ export function ServerStatusProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [serverStatus, setServerStatus] = useState<ServerStatus>("offline");
+  const [serverStatus, setServerStatus] = useState<ServerStatus>(undefined);
   const eventSourceRef = useRef<EventSource | null>(null);
+  const { setActionState } = useServerAction();
 
   useEffect(() => {
-    console.log("Setting up event source...");
     const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
     if (!serverUrl) return console.error("NEXT_PUBLIC_SERVER_URL not found.");
 
@@ -51,8 +51,13 @@ export function ServerStatusProvider({
 
     eventSourceRef.current.onerror = (error) => {
       console.error("EventSource failed:", error);
-      eventSourceRef.current?.close(); // Close on error to prevent flood
+      eventSourceRef.current?.close();
       setServerStatus("offline");
+      setActionState({
+        error: true,
+        message:
+          "CONEXÃO COM API FALHOU. Atualize a página ou tente mais tarde.",
+      });
     };
 
     eventSourceRef.current.onopen = () => {

@@ -11,7 +11,7 @@ export default function AlertBox() {
   return (
     <div
       className={cn(
-        "relative mb-4 flex items-center space-x-2 border-2 border-black",
+        "relative mb-4 w-fit mx-auto flex items-center space-x-2 border-2 border-black",
         "after:bottom-0 after:left-0 after:h-1 after:w-full",
         "px-3 pt-1.5 pb-2.5 text-sm after:absolute",
         actionState.error &&
@@ -22,9 +22,9 @@ export default function AlertBox() {
           "bg-green-500 text-neutral-800 after:bg-green-800",
       )}
     >
-      {actionState.error && <XCircle size={16} weight="bold" />}
-      {actionState.warning && <Warning size={16} weight="bold" />}
-      {actionState.success && <CheckCircle size={16} weight="bold" />}
+      {actionState.error && <XCircle size={16} weight="bold" className="min-w-4" />}
+      {actionState.warning && <Warning size={16} weight="bold" className="min-w-4" />}
+      {actionState.success && <CheckCircle size={16} weight="bold" className="min-w-4" />}
       <p>{actionState.message}</p>
 
       <button

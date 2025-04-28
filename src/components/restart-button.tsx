@@ -67,7 +67,9 @@ export default function RestartButton({
       <ArrowsClockwise
         size={14}
         weight="fill"
-        className={isPending ? "animate-spin" : ""}
+        className={
+          isPending || serverStatus === "restarting" ? "animate-spin" : ""
+        }
       />
       Reiniciar servidor
     </button>

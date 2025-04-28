@@ -4,7 +4,6 @@ import RestartButton from "@/components/restart-button";
 import StartButton from "@/components/start-button";
 import StopButton from "@/components/stop-button";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
-import RemoveTokenButton from "./remove-token-button";
 import AlertBox from "./alert-box";
 import { useEffect, useState } from "react";
 import { useServerAction } from "@/contexts/ServerActionContext";
@@ -61,7 +60,7 @@ export default function ButtonGroup() {
   ]);
   return (
     <>
-      <div className="my-4 flex flex-col gap-y-3.5">
+      <div className="mx-auto my-7 flex max-w-md flex-col gap-y-3.5">
         {(serverStatus === "offline" || serverStatus === "starting") && (
           <StartButton onStartInitiated={handleStartInitiated} />
         )}
@@ -73,7 +72,6 @@ export default function ButtonGroup() {
         )}
       </div>
       <AlertBox />
-      <RemoveTokenButton />
     </>
   );
 }
