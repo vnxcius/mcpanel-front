@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from "next/server";
 import * as argon2 from "argon2";
 import { createSession, generateSessionToken } from "@/lib/auth/session";
 import { setSessionTokenCookie } from "@/lib/auth/cookies";
-import { headers } from "next/headers";
 
 export async function POST(request: NextRequest) {
   const { password } = await loginSchema.parseAsync(await request.json());
@@ -39,10 +38,9 @@ export async function POST(request: NextRequest) {
         { status: 401 },
       );
     }
-    const header = headers();
-    const ip = (await header).get("x-forwarded-for");
+    
     const sessionToken = generateSessionToken();
-    const session = await createSession(sessionToken, user.id, ip as string);
+    const session = await createSession(sessionToken, user.id);
     await setSessionTokenCookie(sessionToken, session.expires_at);
 
     return NextResponse.json({

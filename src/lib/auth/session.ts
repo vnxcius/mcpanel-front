@@ -18,19 +18,16 @@ export function generateSessionToken(): string {
 export async function createSession(
   token: string,
   userId: number,
-  ip: string,
 ): Promise<Session> {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
   const session: Session = {
     id: sessionId,
     user_id: userId,
-    ip,
     expires_at: new Date(
       Date.now() + 36000 * 24 * 30, // 30 days
     ),
   };
 
-  await invalidateAllSessions(ip);
   await prisma.session.create({ data: session });
   return session;
 }
@@ -80,8 +77,8 @@ export async function invalidateSession(sessionId: string): Promise<void> {
   await prisma.session.delete({ where: { id: sessionId } });
 }
 
-export async function invalidateAllSessions(ip: string): Promise<void> {
-  await prisma.session.deleteMany({ where: { ip } });
+export async function invalidateAllSessions(id: number): Promise<void> {
+  await prisma.session.deleteMany({ where: { user_id: id } });
 }
 
 export type SessionValidationResult =

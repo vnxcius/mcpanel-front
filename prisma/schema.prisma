@@ -16,7 +16,6 @@ model User {
 
 model Session {
   id         String   @id
-  ip         String   @unique
   user_id    Int
   expires_at DateTime
 
