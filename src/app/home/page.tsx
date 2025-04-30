@@ -1,14 +1,9 @@
 import ButtonGroup from "@/components/button-group";
+import LogoutButton from "@/components/logout-button";
 import ServerStatus from "@/components/server-status";
 import { getCurrentSession } from "@/lib/auth/session";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { Geist } from "next/font/google";
-import Link from "next/link";
-import { SignOut } from "@phosphor-icons/react/dist/ssr";
-
-const geist = Geist({ subsets: ["latin"], display: "swap", weight: "400" });
 
 export default async function Home() {
   const { session } = await getCurrentSession();
@@ -27,17 +22,7 @@ export default async function Home() {
 
       <div className="mt-10 flex w-full items-end justify-between">
         <ServerStatus />
-        <Link
-          href={"/api/auth/sign-out"}
-          className={cn(
-            geist.className,
-            "flex w-fit items-center gap-1 text-sm hover:underline",
-            "text-rose-500 underline-offset-2",
-          )}
-        >
-          <SignOut size={20} weight="fill" />
-          Sair
-        </Link>
+        <LogoutButton />
       </div>
       <hr className="mt-3.5 border-neutral-800" />
 
