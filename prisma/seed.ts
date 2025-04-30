@@ -9,12 +9,15 @@ async function main() {
     process.exit(1);
   }
 
-  const user = { password };
+  const user = { id: 1, password };
   const hashedPassword = await hashPassword(user.password);
   user.password = hashedPassword!;
 
-  await prisma.user.delete({ where: { id: 1 } });
-  await prisma.user.create({ data: user });
+  await prisma.user.upsert({
+    create: user,
+    update: user,
+    where: { id: 1 },
+  });
 
   console.log("User seeded successfully");
 }
