@@ -7,6 +7,7 @@ import { useServerStatus } from "@/contexts/ServerStatusContext";
 import AlertBox from "./alert-box";
 import { useEffect, useState } from "react";
 import { useServerAction } from "@/contexts/ServerActionContext";
+import LoadingScreen from "./loading-screen";
 
 export default function ButtonGroup() {
   const { serverStatus } = useServerStatus();
@@ -24,7 +25,7 @@ export default function ButtonGroup() {
     // Handle Start result
     if (isAwaitingStartResult && serverStatus === "online") {
       setActionState({
-        success: true,
+        type: "success",
         message: "Servidor iniciado com sucesso!",
       });
       setIsAwaitingStartResult(false);
@@ -33,20 +34,20 @@ export default function ButtonGroup() {
     // Handle Stop result
     if (isAwaitingStopResult && serverStatus === "offline") {
       setActionState({
-        success: true,
+        type: "success",
         message: "Servidor parado com sucesso!",
       });
       setIsAwaitingStopResult(false);
     } else if (isAwaitingStopResult && serverStatus === "online") {
       // e.g., stop failed?
-      setActionState({ error: true, message: "Falha ao parar o servidor." });
+      setActionState({ type: "error", message: "Falha ao parar o servidor." });
       setIsAwaitingStopResult(false);
     }
 
     // Handle Restart result (more complex, depends on final state - likely 'online')
     if (isAwaitingRestartResult && serverStatus === "online") {
       setActionState({
-        success: true,
+        type: "success",
         message: "Servidor reiniciado com sucesso!",
       });
       setIsAwaitingRestartResult(false);
@@ -60,6 +61,7 @@ export default function ButtonGroup() {
   ]);
   return (
     <>
+      <LoadingScreen fadeOut={serverStatus !== undefined} />
       <div className="mx-auto my-7 flex max-w-md flex-col gap-y-3.5">
         {(serverStatus === "offline" || serverStatus === "starting") && (
           <StartButton onStartInitiated={handleStartInitiated} />

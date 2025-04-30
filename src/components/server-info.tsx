@@ -1,9 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
-import ButtonGroup from "./button-group";
-import TokenInput from "./token-input";
-import { verifyToken } from "@/lib/utils";
+import { useState, useTransition } from "react";
 
 interface ServerInfo {
   host: string;
@@ -28,8 +25,7 @@ interface ServerInfo {
   ];
 }
 
-export default function TokenDependentUI() {
-  const [isValidToken, setIsValidToken] = useState<boolean>();
+export default function ServerInfo() {
   const [data, setData] = useState<ServerInfo | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -42,26 +38,8 @@ export default function TokenDependentUI() {
       setData(data);
     });
   };
-
-  useEffect(() => {
-    async function validateToken() {
-      const validToken = await verifyToken();
-      setIsValidToken(validToken);
-    }
-    validateToken();
-  }, []);
-
-  if (isValidToken === undefined) {
-    return (
-      <div className="my-10 flex items-center justify-center">
-        <div className="size-7 animate-spin rounded-full border-5 border-green-400 border-t-transparent"></div>
-      </div>
-    );
-  }
   return (
-    <div className="space-y-4">
-      {isValidToken ? <ButtonGroup /> : <TokenInput />}
-
+    <>
       {(data || isPending) && (
         <div className="border-2 border-white bg-neutral-900 p-4 text-neutral-500">
           {isPending ? (
@@ -106,15 +84,13 @@ export default function TokenDependentUI() {
           )}
         </div>
       )}
-      {isValidToken && (
-        <button
-          onClick={fetchServerInfo}
-          disabled={isPending}
-          className="after:bg-button-shadow relative mx-auto block w-fit cursor-pointer border-2 border-black bg-neutral-300 px-4 pt-1 pb-2 text-center text-sm text-neutral-800 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-neutral-300 before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full hover:translate-y-px hover:bg-neutral-300/90 hover:after:h-[3px] disabled:bg-neutral-500 disabled:before:bg-neutral-300/50"
-        >
-          {isPending ? "Carregando" : "Obter"} informações do servidor
-        </button>
-      )}
-    </div>
+      <button
+        onClick={fetchServerInfo}
+        disabled={isPending}
+        className="after:bg-button-shadow relative mx-auto block w-fit cursor-pointer border-2 border-black bg-neutral-300 px-4 pt-1 pb-2 text-center text-sm text-neutral-800 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-neutral-300 before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full hover:translate-y-px hover:bg-neutral-300/90 hover:after:h-[3px] disabled:bg-neutral-500 disabled:before:bg-neutral-300/50"
+      >
+        {isPending ? "Carregando" : "Obter"} informações do servidor
+      </button>
+    </>
   );
 }

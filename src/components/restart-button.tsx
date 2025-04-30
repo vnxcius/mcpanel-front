@@ -4,6 +4,8 @@ import { useTransition } from "react";
 import { ArrowsClockwise } from "@phosphor-icons/react";
 import { useServerAction } from "@/contexts/ServerActionContext";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
+import { restartServer } from "@/app/actions";
+import useSound from "use-sound";
 
 interface RestartButtonProps {
   onRestartInitiated: () => void;
@@ -15,43 +17,22 @@ export default function RestartButton({
   const { setActionState } = useServerAction();
   const { serverStatus } = useServerStatus();
   const [isPending, startTransition] = useTransition();
-  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+  const [click] = useSound("/sounds/click.mp3", { volume: 0.1 });
 
   const handleRestart = () => {
+    click();
     startTransition(async () => {
-      const token = localStorage.getItem("sss-token");
-
-      if (!token) {
-        setActionState({
-          error: true,
-          message: "Authentication token not found or invalid.",
-        });
-        return;
-      }
-
       try {
-        const res = await fetch(serverUrl + "/api/v1/restart", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!res.ok) {
-          const data = await res.json();
-          return setActionState({ error: true, message: data.message });
-        }
-
-        setActionState({ warning: true, message: "Reiniciando servidor..." });
+        const response = await restartServer();
+        setActionState({ type: response.type, message: response.message });
         onRestartInitiated();
       } catch (error) {
         if (error instanceof Error) {
-          return setActionState({ error: true, message: error.message });
+          return setActionState({ type: "error", message: error.message });
         }
 
         console.log(error);
-        setActionState({ error: true, message: "Erro desconhecido" });
+        setActionState({ type: "error", message: "Erro desconhecido" });
       }
     });
   };

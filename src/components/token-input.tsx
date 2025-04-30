@@ -1,98 +1,123 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
-import { cn } from "@/lib/utils";
+import { useEffect, useTransition } from "react";
 import { useServerAction } from "@/contexts/ServerActionContext";
 import AlertBox from "./alert-box";
+import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { z } from "zod";
+import { loginSchema } from "@/lib/validation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import useSound from "use-sound";
 
 const initialState = {
-  error: false,
-  warning: false,
+  type: undefined,
   message: "",
 };
 
 export default function TokenInput() {
   const { actionState, setActionState } = useServerAction();
   const [isPending, startTransition] = useTransition();
-  const [token, setToken] = useState("");
+  const router = useRouter();
+  const [click] = useSound("/sounds/click.mp3", { volume: 0.1 });
+  const [bass] = useSound("/sounds/noteblock_bass.mp3", { volume: 0.1 });
+  const [successful_hit] = useSound("/sounds/successful_hit.ogg", {
+    volume: 0.2,
+  });
+  const [thorns] = useSound("/sounds/thorns.mp3", { volume: 0.1 });
 
-  const handleVerifyToken = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { password: "" },
+  });
 
-    if (token.length <= 0) {
+  const onSubmit = (data: z.infer<typeof loginSchema>) => {
+    click();
+    const validation = loginSchema.safeParse(data);
+
+    if (!validation.success) {
+      console.log("Data not valid:", validation.error);
       return setActionState({
-        warning: true,
-        message: "Preencha o token corretamente",
+        type: "error",
+        message: validation.error.issues[0].message,
       });
     }
-
     startTransition(async () => {
       try {
-        const res = await fetch(
-          process.env.NEXT_PUBLIC_SERVER_URL + "/v1/verify-token",
-          {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token }),
-          },
-        );
+        const resp = await fetch("/api/auth/sign-in", {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
 
-        if (!res.ok) {
-          const data = await res.json();
-          return setActionState({ error: true, message: data.message });
+        if (!resp.ok) {
+          thorns();
+          const data = await resp.json();
+          return setActionState({
+            type: data.type || "error",
+            message: data.message || data.error,
+          });
         }
 
+        successful_hit();
         setActionState({
-          success: true,
+          type: "success",
           message: "Token verificado. Redirecionando...",
         });
 
-        localStorage.setItem("sss-token", token);
-
         setTimeout(() => {
-          window.location.reload();
+          router.push("/home");
           setActionState(initialState);
         }, 1000);
       } catch (error) {
+        thorns();
         if (error instanceof Error) {
-          return setActionState({ error: true, message: error.message });
+          return setActionState({ type: "error", message: error.message });
         }
 
         return setActionState({
-          error: true,
+          type: "error",
           message: "Erro ao verificar token",
         });
       }
     });
   };
 
+  const onInvalid = (errors: typeof form.formState.errors) => {
+    const firstError = errors.password?.message;
+    if (firstError) {
+      setActionState({
+        type: "warning",
+        message: firstError,
+      });
+      bass();
+    }
+  };
+
   useEffect(() => {
-    if (actionState.error || actionState.warning) {
+    if (actionState.type === "error" || actionState.type === "warning") {
       setActionState(initialState);
     }
-  }, [token]);
+  }, [form.watch("password")]);
   return (
-    <form onSubmit={handleVerifyToken} className="my-4">
-      <div className="my-14 space-y-2">
+    <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="my-4">
+      <div className="mt-14 mb-2 space-y-2">
         <label className="block text-sm text-neutral-300">
           Token de acesso
         </label>
 
         <input
           type="text"
-          name="token"
-          id="token"
+          id="password"
           className={cn(
             "w-full border-2 border-neutral-700 bg-black p-3",
             "text-neutral-50 placeholder:text-neutral-500 focus:outline-none",
-            actionState.error && "border-red-500",
-            actionState.warning && "border-yellow-500",
+            actionState.type === "error" && "border-red-500",
+            actionState.type === "warning" && "border-yellow-500",
           )}
           autoComplete="off"
           placeholder="Insira o token aqui"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
+          {...form.register("password")}
           autoFocus
         />
         <AlertBox />
@@ -101,7 +126,7 @@ export default function TokenInput() {
         type="submit"
         aria-disabled={isPending}
         disabled={isPending}
-        className="after:bg-button-shadow relative w-full cursor-pointer border-2 border-black bg-neutral-300 px-6 pt-2 pb-3 text-center text-neutral-800 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-neutral-300 before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full hover:translate-y-px hover:bg-neutral-300/90 hover:after:h-[3px] disabled:bg-neutral-500 disabled:before:bg-neutral-300/50"
+        className="after:bg-button-shadow relative ml-auto block w-fit cursor-pointer border-2 border-black bg-neutral-300 px-6 pt-2 pb-3 text-center text-neutral-800 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-neutral-300 before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full hover:translate-y-px hover:bg-neutral-300/90 hover:after:h-[3px] disabled:bg-neutral-500 disabled:before:bg-neutral-300/50"
       >
         {isPending ? "Verificando..." : "Verificar token"}
       </button>

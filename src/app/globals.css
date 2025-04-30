@@ -36,3 +36,53 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* HTML: <div class="loader"></div> */
+.loader {
+  --s: 15px;
+
+  --_d: calc(0.253 * var(--s));
+  width: calc(var(--s) + var(--_d));
+  aspect-ratio: 1;
+  display: grid;
+}
+.loader:before,
+.loader:after {
+  content: "";
+  grid-area: 1/1;
+  clip-path: polygon(
+    var(--_d) 0,
+    100% 0,
+    100% calc(100% - var(--_d)),
+    calc(100% - var(--_d)) 100%,
+    0 100%,
+    0 var(--_d)
+  );
+  background: conic-gradient(
+    from -90deg at calc(100% - var(--_d)) var(--_d),
+    #5bc03f 135deg,
+    #3b8526 0 270deg,
+    #2a6819 0
+  );
+  animation: l6 2s infinite;
+}
+.loader:after {
+  animation-delay: -1s;
+}
+@keyframes l6 {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(25px, 0);
+  }
+  50% {
+    transform: translate(25px, 25px);
+  }
+  75% {
+    transform: translate(0, 25px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}

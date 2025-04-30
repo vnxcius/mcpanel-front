@@ -4,6 +4,9 @@ import { useTransition } from "react";
 import { Square } from "@phosphor-icons/react";
 import { useServerAction } from "@/contexts/ServerActionContext";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
+import { stopServer } from "@/app/actions";
+import { set } from "react-hook-form";
+import useSound from "use-sound";
 
 interface StopButtonProps {
   onStopInitiated: () => void;
@@ -13,44 +16,21 @@ export default function StopButton({ onStopInitiated }: StopButtonProps) {
   const { setActionState } = useServerAction();
   const { serverStatus } = useServerStatus();
   const [isPending, startTransition] = useTransition();
-  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+  const [click] = useSound("/sounds/click.mp3", { volume: 0.1 });
 
   const handleStop = () => {
+    click();
     startTransition(async () => {
-      const token = localStorage.getItem("sss-token");
-
-      if (!token) {
+      const response = await stopServer();
+      if (response.type !== "success") {
         setActionState({
-          error: true,
-          message: "Authentication token not found or invalid.",
+          type: response.type,
+          message: response.message || "Erro desconhecido",
         });
         return;
       }
-
-      try {
-        const res = await fetch(serverUrl + "/api/v1/stop", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!res.ok) {
-          const data = await res.json();
-          return setActionState({ error: true, message: data.message });
-        }
-
-        setActionState({ warning: true, message: "Desligando o servidor..." });
-        onStopInitiated();
-      } catch (error) {
-        if (error instanceof Error) {
-          return setActionState({ error: true, message: error.message });
-        }
-
-        console.log(error);
-        setActionState({ error: true, message: "Erro desconhecido" });
-      }
+      onStopInitiated();
+      setActionState(response);
     });
   };
 

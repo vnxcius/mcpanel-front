@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useServerAction } from "./ServerActionContext";
+import useSound from "use-sound";
 
 export type ServerStatus =
   | "starting"
@@ -34,7 +35,9 @@ export function ServerStatusProvider({
     const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
     if (!serverUrl) return console.error("NEXT_PUBLIC_SERVER_URL not found.");
 
-    eventSourceRef.current = new EventSource(serverUrl + "/v1/sse");
+    eventSourceRef.current = new EventSource(
+      serverUrl + "/v2/server-status-stream",
+    );
 
     eventSourceRef.current.onmessage = (event) => {
       try {
@@ -54,9 +57,9 @@ export function ServerStatusProvider({
       eventSourceRef.current?.close();
       setServerStatus("offline");
       setActionState({
-        error: true,
+        type: "error",
         message:
-          "CONEXÃO COM API FALHOU. Atualize a página ou tente mais tarde.",
+          "Conexão com API foi encerrada. Atualize a página ou tente novamente.",
       });
     };
 

@@ -2,17 +2,14 @@
 
 import { createContext, useContext, useState } from "react";
 
+type ServerActionType = "success" | "error" | "warning" | undefined;
 export interface ServerActionState {
-  success?: boolean;
-  error?: boolean;
-  warning?: boolean;
+  type: ServerActionType;
   message: string;
 }
 
 const initialState: ServerActionState = {
-  success: false,
-  error: false,
-  warning: false,
+  type: undefined,
   message: "",
 };
 
