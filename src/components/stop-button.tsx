@@ -5,7 +5,6 @@ import { Square } from "@phosphor-icons/react";
 import { useServerAction } from "@/contexts/ServerActionContext";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
 import { stopServer } from "@/app/actions";
-import { set } from "react-hook-form";
 import useSound from "use-sound";
 
 interface StopButtonProps {

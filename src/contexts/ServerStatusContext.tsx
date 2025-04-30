@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useServerAction } from "./ServerActionContext";
-import useSound from "use-sound";
 
 export type ServerStatus =
   | "starting"
