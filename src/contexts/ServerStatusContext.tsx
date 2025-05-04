@@ -35,7 +35,7 @@ export function ServerStatusProvider({
     if (!serverUrl) return console.error("NEXT_PUBLIC_SERVER_URL not found.");
 
     eventSourceRef.current = new EventSource(
-      serverUrl + "/v2/server-status-stream",
+      serverUrl + "/api/v2/server-status-stream",
     );
 
     eventSourceRef.current.onmessage = (event) => {

@@ -7,9 +7,10 @@ const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
 
 export async function startServer(): Promise<ServerActionState> {
   const { session } = await getCurrentSession();
-  if (!session) return { type: "error", message: "Not signed in" };
+  if (!session)
+    return { type: "error", message: "Sessão inválida. Faça login novamente." };
 
-  const res = await fetch(`${serverUrl}/api/v2/start`, {
+  const res = await fetch(`${serverUrl}/api/v2/server/start`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${session.id}`,
@@ -30,7 +31,7 @@ export async function stopServer(): Promise<ServerActionState> {
   if (!session)
     return { type: "error", message: "Sessão inválida. Faça login novamente." };
 
-  const res = await fetch(`${serverUrl}/api/v2/stop`, {
+  const res = await fetch(`${serverUrl}/api/v2/server/stop`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${session.id}`,
@@ -48,9 +49,10 @@ export async function stopServer(): Promise<ServerActionState> {
 
 export async function restartServer(): Promise<ServerActionState> {
   const { session } = await getCurrentSession();
-  if (!session) return { type: "error", message: "Not signed in" };
+  if (!session)
+    return { type: "error", message: "Sessão inválida. Faça login novamente." };
 
-  const res = await fetch(`${serverUrl}/api/v2/restart`, {
+  const res = await fetch(`${serverUrl}/api/v2/server/restart`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${session.id}`,
