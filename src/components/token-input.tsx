@@ -62,12 +62,11 @@ export default function TokenInput() {
         successful_hit();
         setActionState({
           type: "success",
-          message: "Token verificado. Redirecionando...",
+          message: "Senha verificada. Redirecionando...",
         });
 
         setTimeout(() => {
           router.push("/home");
-          setActionState(initialState);
         }, 1000);
       } catch (error) {
         thorns();
@@ -77,7 +76,7 @@ export default function TokenInput() {
 
         return setActionState({
           type: "error",
-          message: "Erro ao verificar token",
+          message: "Erro ao verificar senha",
         });
       }
     });
@@ -102,9 +101,7 @@ export default function TokenInput() {
   return (
     <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="my-4">
       <div className="mt-14 mb-2 space-y-2">
-        <label className="block text-md text-neutral-300">
-          Senha
-        </label>
+        <label className="text-md block text-neutral-300">Senha</label>
 
         <input
           type="text"

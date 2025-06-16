@@ -3,7 +3,7 @@
 import { ServerActionState } from "@/contexts/ServerActionContext";
 import { getCurrentSession } from "@/lib/auth/session";
 
-const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+const serverUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export async function startServer(): Promise<ServerActionState> {
   const { session } = await getCurrentSession();

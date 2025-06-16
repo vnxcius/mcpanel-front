@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Geist } from "next/font/google";
-import { SignOut } from "@phosphor-icons/react";
+import { SignOutIcon } from "@phosphor-icons/react";
 
 const geist = Geist({ subsets: ["latin"], display: "swap", weight: "400" });
 
@@ -16,8 +16,8 @@ export default function LogoutButton() {
         "text-rose-500 underline-offset-2",
       )}
     >
-      <SignOut size={20} weight="fill" />
-      Sair
+      <SignOutIcon size={20} weight="fill" />
+      Deslogar
     </button>
   );
 }

@@ -31,8 +31,8 @@ export function ServerStatusProvider({
   const { setActionState } = useServerAction();
 
   useEffect(() => {
-    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
-    if (!serverUrl) return console.error("NEXT_PUBLIC_SERVER_URL not found.");
+    const serverUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!serverUrl) return console.error("NEXT_PUBLIC_API_URL not found.");
 
     eventSourceRef.current = new EventSource(
       serverUrl + "/api/v2/server-status-stream",

@@ -2,7 +2,12 @@
 
 import { useServerAction } from "@/contexts/ServerActionContext";
 import { cn } from "@/lib/utils";
-import { CheckCircle, Warning, X, XCircle } from "@phosphor-icons/react";
+import {
+  CheckCircleIcon,
+  WarningIcon,
+  XCircleIcon,
+  XIcon,
+} from "@phosphor-icons/react";
 
 export default function AlertBox() {
   const { actionState, setActionState } = useServerAction();
@@ -11,7 +16,7 @@ export default function AlertBox() {
   return (
     <div
       className={cn(
-        "relative mx-auto mb-4 flex w-full items-center space-x-2 border-2 border-black",
+        "relative mx-auto mb-4 flex max-w-lg items-center space-x-2 border-2 border-black",
         "after:bottom-0 after:left-0 after:h-1 after:w-full",
         "px-3 pt-1.5 pb-2.5 text-sm after:absolute",
         actionState.type === "error" &&
@@ -23,13 +28,13 @@ export default function AlertBox() {
       )}
     >
       {actionState.type === "error" && (
-        <XCircle size={16} weight="bold" className="min-w-4" />
+        <XCircleIcon size={16} weight="bold" className="min-w-4" />
       )}
       {actionState.type === "warning" && (
-        <Warning size={16} weight="bold" className="min-w-4" />
+        <WarningIcon size={16} weight="bold" className="min-w-4" />
       )}
       {actionState.type === "success" && (
-        <CheckCircle size={16} weight="bold" className="min-w-4" />
+        <CheckCircleIcon size={16} weight="bold" className="min-w-4" />
       )}
       <p>{actionState.message}</p>
 
@@ -37,7 +42,7 @@ export default function AlertBox() {
         className="ml-auto cursor-pointer"
         onClick={() => setActionState({ ...actionState, message: "" })}
       >
-        {<X size={16} weight="bold" />}
+        {<XIcon size={16} weight="bold" />}
       </button>
     </div>
   );

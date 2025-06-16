@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ArrowClockwiseIcon } from "@phosphor-icons/react";
+import { ArrowClockwiseIcon, ClockIcon } from "@phosphor-icons/react";
 import { useEffect, useState, useTransition } from "react";
 
 interface ServerInfo {
@@ -55,18 +55,19 @@ export default function ServerInfo() {
     <>
       {(data || isPending) && (
         <>
-          <div className="mt-3.5 mb-7 flex justify-between">
+          <div className="mt-3.5 mb-3 flex items-start justify-between">
             <div>
               <p className="text-neutral-500 underline">{data?.host}</p>
               <p className="text-neutral-600">
                 {data.version?.name_clean ?? "Desconhecido"}
               </p>
             </div>
-            <p className="text-blue-600">
-              <span>
+            <div className="flex items-center gap-1 text-blue-600">
+              <ClockIcon size={16} weight="bold" />
+              <p>
                 {new Date(data?.retrieved_at || 0).toLocaleTimeString("pt-BR")}
-              </span>
-            </p>
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center justify-between">
