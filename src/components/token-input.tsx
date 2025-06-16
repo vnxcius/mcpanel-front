@@ -102,8 +102,8 @@ export default function TokenInput() {
   return (
     <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="my-4">
       <div className="mt-14 mb-2 space-y-2">
-        <label className="block text-sm text-neutral-300">
-          Token de acesso
+        <label className="block text-md text-neutral-300">
+          Senha
         </label>
 
         <input
@@ -116,7 +116,7 @@ export default function TokenInput() {
             actionState.type === "warning" && "border-yellow-500",
           )}
           autoComplete="off"
-          placeholder="Insira o token aqui"
+          placeholder="Insira a frase-chave aqui"
           {...form.register("password")}
           autoFocus
         />
@@ -126,9 +126,9 @@ export default function TokenInput() {
         type="submit"
         aria-disabled={isPending}
         disabled={isPending}
-        className="after:bg-button-shadow relative ml-auto block w-fit cursor-pointer border-2 border-black bg-neutral-300 px-6 pt-2 pb-3 text-center text-neutral-800 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-neutral-300 before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full hover:translate-y-px hover:bg-neutral-300/90 hover:after:h-[3px] disabled:bg-neutral-500 disabled:before:bg-neutral-300/50"
+        className="after:bg-button-shadow relative ml-auto block w-40 cursor-pointer border-2 border-black bg-neutral-300 px-6 pt-2 pb-3 text-center text-neutral-800 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-neutral-300 before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full hover:translate-y-px hover:bg-neutral-300/90 hover:after:h-[3px] disabled:bg-neutral-500 disabled:before:bg-neutral-300/50"
       >
-        {isPending ? "Verificando..." : "Verificar token"}
+        {isPending ? "Verificando..." : "Verificar"}
       </button>
     </form>
   );

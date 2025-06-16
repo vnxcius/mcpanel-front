@@ -4,7 +4,7 @@ import { ServerActionProvider } from "@/contexts/ServerActionContext";
 import { ServerStatusProvider } from "@/contexts/ServerStatusContext";
 
 export const metadata: Metadata = {
-  title: "ServerHub | mmfc.vncius.dev",
+  title: "Painel | ronaldo.vncius.dev",
   description: "Start/Stop Service Minecraft Server",
 };
 
