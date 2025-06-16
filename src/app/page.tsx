@@ -2,7 +2,6 @@ import ServerInfo from "@/components/server-info";
 import ServerStatus from "@/components/server-status";
 import TokenInput from "@/components/token-input";
 import { getCurrentSession } from "@/lib/auth/session";
-import Image from "next/image";
 import { redirect } from "next/navigation";
 
 export default async function Page() {

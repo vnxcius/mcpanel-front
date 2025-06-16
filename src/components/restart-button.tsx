@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { ArrowsClockwise } from "@phosphor-icons/react";
+import { ArrowsClockwiseIcon } from "@phosphor-icons/react";
 import { useServerAction } from "@/contexts/ServerActionContext";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
 import { restartServer } from "@/app/actions";
@@ -45,7 +45,7 @@ export default function RestartButton({
       onClick={handleRestart}
       className="relative flex w-full flex-1 cursor-pointer items-center justify-center gap-1.5 border-2 border-black bg-amber-500 pt-2 pb-3 text-neutral-800 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-amber-500 before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:bg-amber-400 after:brightness-50 hover:translate-y-px hover:bg-amber-500/90 hover:before:bg-amber-500/50 hover:after:h-[3px] disabled:bg-amber-400/50 disabled:before:bg-amber-600/50"
     >
-      <ArrowsClockwise
+      <ArrowsClockwiseIcon
         size={14}
         weight="fill"
         className={
