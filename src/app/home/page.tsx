@@ -12,7 +12,7 @@ export default async function Home() {
   if (!session) return redirect("/");
 
   return (
-    <div className="font-minecraft mx-auto my-8 flex w-fit flex-col items-start gap-16 md:flex-row md:gap-6">
+    <div className="font-minecraft mx-auto my-8 flex max-w-[1366px] flex-col items-start gap-16 md:flex-row md:gap-6">
       <div className="max-w-sm space-y-4 px-4 md:max-w-screen">
         <LatestLog />
         <ButtonGroup />

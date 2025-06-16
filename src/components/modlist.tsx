@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { matchSorter } from "match-sorter";
-import { sleep } from "@/lib/utils";
 import { InfoIcon } from "@phosphor-icons/react";
+import { useServerAction } from "@/contexts/ServerActionContext";
+import UploadMods from "./upload-mods";
 
 interface Mod {
   name: string;
@@ -18,8 +19,10 @@ export default function Modlist() {
   const [modalOpen, setModalOpen] = useState(false);
   const [targetMod, setTargetMod] = useState<Mod | null>(null);
   const [isPending, startTransition] = useTransition();
+  const { setActionState } = useServerAction();
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) throw new Error("NEXT_PUBLIC_API_URL not found.");
 
   /** Normalise: lower‑case & strip space, underscore, hyphen */
   const normalize = (txt: string) => txt.toLowerCase().replace(/[\s_-]+/g, "");
@@ -81,39 +84,63 @@ export default function Modlist() {
     setModalOpen(true);
   };
 
+  const deleteModRequest = async (apiUrl: string, name: string) =>
+    fetch(`${apiUrl}/api/v2/modlist/${encodeURIComponent(name)}`, {
+      method: "DELETE",
+    });
+
+  const removeMod = (name: string) => (mods: Mod[]) =>
+    mods.filter((m) => m.name !== name);
+
   const confirmDelete = () => {
     if (!targetMod) return;
-    startTransition(async () => {
-      // try {
-      //   const res = await fetch(
-      //     `${apiUrl}/api/v2/modlist/${encodeURIComponent(targetMod.name)}`,
-      //     { method: "DELETE" },
-      //   );
-      //   if (!res.ok) throw new Error("Failed to delete mod");
-      //   setMods((prev) => prev.filter((m) => m.name !== targetMod.name));
-      // } finally {
-      //   setModalOpen(false);
-      //   setTargetMod(null);
-      // }
-      await sleep(3000);
-      updateModlist();
+
+    const { name } = targetMod;
+
+    startTransition(() => handleDelete(name));
+  };
+
+  const handleUpload = (newMods: Mod[]) => {
+    setMods((prev) => [
+      ...prev,
+      ...newMods.filter((m) => !prev.some((p) => p.name === m.name)),
+    ]);
+  };
+
+  const handleDelete = async (name: string) => {
+    try {
+      const res = await deleteModRequest(apiUrl, name);
+
+      if (!res.ok) {
+        setActionState({
+          type: "error",
+          message: `Erro ao remover o mod ${name}: ${res.statusText}`,
+        });
+        return;
+      }
+
+      setSearch("");
       setModalOpen(false);
       setTargetMod(null);
-    });
+      setMods(removeMod(name));
+      setActionState({ type: "success", message: "Mod removido com sucesso!" });
+    } catch (err) {
+      setModalOpen(false);
+      setTargetMod(null);
+      const message = err instanceof Error ? err.message : "Erro desconhecido";
+      setActionState({ type: "error", message });
+    }
   };
 
   return (
-    <div className="my-10">
+    <div className="my-10 w-full">
       <div className="flex items-end gap-3">
         <h2 className="text-2xl leading-none text-lime-500">Modlist</h2>
         <p className="text-sm text-neutral-500">{mods.length} mods</p>
       </div>
       <hr className="mt-2.5 border-neutral-800" />
-      <div className="mt-2.5 flex items-center gap-1 text-blue-600">
-        <InfoIcon size={16} />
-        <p className="text-sm">Clique em um mod para removê-lo</p>
-      </div>
 
+      <UploadMods apiUrl={apiUrl} onUpload={handleUpload} />
       <input
         type="text"
         placeholder="Search mods..."
@@ -122,6 +149,10 @@ export default function Modlist() {
         onChange={(e) => setSearch(e.target.value)}
       />
 
+      <div className="mt-2.5 flex items-center gap-1 text-blue-600">
+        <InfoIcon size={16} />
+        <p className="text-sm">Clique em um mod para removê-lo</p>
+      </div>
       <ul className="[&::-webkit-scrollbar-thumb]:bg-accent text-accent my-4 max-h-96 list-inside list-decimal overflow-y-scroll [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-neutral-800">
         {filtered.length ? (
           filtered.map((m) => (
