@@ -5,6 +5,7 @@ import { matchSorter } from "match-sorter";
 import { InfoIcon } from "@phosphor-icons/react";
 import { useServerAction } from "@/contexts/ServerActionContext";
 import UploadMods from "./upload-mods";
+import useSound from "use-sound";
 
 interface Mod {
   name: string;
@@ -19,6 +20,9 @@ export default function Modlist() {
   const [modalOpen, setModalOpen] = useState(false);
   const [targetMod, setTargetMod] = useState<Mod | null>(null);
   const [isPending, startTransition] = useTransition();
+    const [successful_hit] = useSound("/sounds/successful_hit.ogg", {
+      volume: 0.1,
+    });
   const { setActionState } = useServerAction();
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -123,6 +127,7 @@ export default function Modlist() {
       setModalOpen(false);
       setTargetMod(null);
       setMods(removeMod(name));
+      successful_hit();
       setActionState({ type: "success", message: "Mod removido com sucesso!" });
     } catch (err) {
       setModalOpen(false);

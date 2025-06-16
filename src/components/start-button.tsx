@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { Play } from "@phosphor-icons/react";
+import { PlayIcon } from "@phosphor-icons/react";
 import { useServerAction } from "@/contexts/ServerActionContext";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
 import { startServer } from "@/app/actions";
@@ -43,7 +43,7 @@ export default function StartButton({ onStartInitiated }: StartButtonProps) {
       onClick={handleStart}
       className="bg-accent disabled:bg-accent/50 after:bg-accent hover:bg-accent/90 text-accent-foreground before:bg-accent disabled:before:bg-accent/50 relative mx-auto flex w-fit cursor-pointer items-center justify-center gap-1.5 border-2 border-black px-10 pt-2 pb-3 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:brightness-50 hover:translate-y-px hover:after:h-[3px] disabled:text-neutral-400"
     >
-      <Play size={14} weight="fill" />
+      <PlayIcon size={14} weight="fill" />
       Ligar servidor
     </button>
   );

@@ -9,6 +9,7 @@ import {
   DragEvent,
   startTransition,
 } from "react";
+import useSound from "use-sound";
 
 interface Mod {
   name: string;
@@ -27,6 +28,12 @@ export default function UploadMods({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [dragOver, setDragOver] = useState(false);
+  const [successful_hit] = useSound("/sounds/successful_hit.ogg", {
+    volume: 0.1,
+  });
+  const [noteblock_bass] = useSound("/sounds/noteblock_bass.mp3", {
+    volume: 0.1,
+  });
   const { setActionState } = useServerAction();
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -48,18 +55,25 @@ export default function UploadMods({
             body: form,
           });
 
-          if (!res.ok) throw new Error(`Upload failed (${res.status})`);
+          if (!res.ok) {
+            noteblock_bass();
+            const data = await res.json();
+            setError(data.message);
+            return;
+          }
 
           const data: UploadResponse = await res.json();
           const newMods = data.mods.map((n) => ({
             name: n.replace(/\.jar$/i, ""),
           }));
           onUpload(newMods);
+          successful_hit();
           setActionState({
             type: "success",
             message: "Mods carregados com sucesso!",
           });
         } catch (err) {
+          noteblock_bass();
           const msg = err instanceof Error ? err.message : "Erro desconhecido";
           setError(msg);
         } finally {
