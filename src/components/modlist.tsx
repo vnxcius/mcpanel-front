@@ -3,14 +3,14 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { matchSorter } from "match-sorter";
 import { InfoIcon } from "@phosphor-icons/react";
-import { useServerAction } from "@/contexts/ServerActionContext";
+import { useToast } from "@/contexts/ToastContext";
 import UploadMods from "./upload-mods";
 import useSound from "use-sound";
 
-interface Mod {
+export interface Mod {
   name: string;
 }
-interface ModlistJSON {
+export interface ModlistJSON {
   mods: Mod[];
 }
 
@@ -23,7 +23,7 @@ export default function Modlist() {
     const [successful_hit] = useSound("/sounds/successful_hit.ogg", {
       volume: 0.1,
     });
-  const { setActionState } = useServerAction();
+  const { setToastState } = useToast();
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   if (!apiUrl) throw new Error("NEXT_PUBLIC_API_URL not found.");
@@ -116,7 +116,7 @@ export default function Modlist() {
       const res = await deleteModRequest(apiUrl, name);
 
       if (!res.ok) {
-        setActionState({
+        setToastState({
           type: "error",
           message: `Erro ao remover o mod ${name}: ${res.statusText}`,
         });
@@ -128,12 +128,12 @@ export default function Modlist() {
       setTargetMod(null);
       setMods(removeMod(name));
       successful_hit();
-      setActionState({ type: "success", message: "Mod removido com sucesso!" });
+      setToastState({ type: "success", message: "Mod removido com sucesso!" });
     } catch (err) {
       setModalOpen(false);
       setTargetMod(null);
       const message = err instanceof Error ? err.message : "Erro desconhecido";
-      setActionState({ type: "error", message });
+      setToastState({ type: "error", message });
     }
   };
 

@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { useServerAction } from "./ServerActionContext";
+import { useToast } from "./ToastContext";
+import { Mod } from "@/components/modlist";
 
 export type ServerStatus =
   | "starting"
@@ -27,49 +28,52 @@ export function ServerStatusProvider({
   children: React.ReactNode;
 }) {
   const [serverStatus, setServerStatus] = useState<ServerStatus>(undefined);
-  const eventSourceRef = useRef<EventSource | null>(null);
-  const { setActionState } = useServerAction();
+  const [modlist, setMods] = useState<Mod[]>([]);
+
+  const webSocketRef = useRef<WebSocket | null>(null);
+  const { setToastState } = useToast();
 
   useEffect(() => {
     const serverUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!serverUrl) return console.error("NEXT_PUBLIC_API_URL not found.");
 
-    eventSourceRef.current = new EventSource(
-      serverUrl + "/api/v2/server-status-stream",
+    webSocketRef.current = new WebSocket(
+      serverUrl + "/api/v2/ws",
     );
+    console.log(webSocketRef.current);
 
-    eventSourceRef.current.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data?.status) {
-          const newStatus = data.status as ServerStatus;
-          console.log("SSE Received Status:", newStatus);
-          setServerStatus(newStatus);
-        }
-      } catch (error) {
-        console.error("Failed to parse SSE message:", event.data, error);
-      }
-    };
+    // webSocketRef.current.onmessage = (event) => {
+    //   try {
+    //     const data = JSON.parse(event.data);
+    //     if (data?.status) {
+    //       const newStatus = data.status as ServerStatus;
+    //       console.log("SSE Received Status:", newStatus);
+    //       setServerStatus(newStatus);
+    //     }
+    //   } catch (error) {
+    //     console.error("Failed to parse SSE message:", event.data, error);
+    //   }
+    // };
 
-    eventSourceRef.current.onerror = (error) => {
-      console.error("EventSource failed:", error);
-      eventSourceRef.current?.close();
-      setServerStatus("offline");
-      setActionState({
-        type: "error",
-        message:
-          "Conexão com API foi encerrada. Atualize a página ou tente novamente.",
-      });
-    };
+    // eventSourceRef.current.onerror = (error) => {
+    //   console.error("EventSource failed:", error);
+    //   eventSourceRef.current?.close();
+    //   setServerStatus("offline");
+    //   setToastState({
+    //     type: "error",
+    //     message:
+    //       "Conexão com API foi encerrada. Atualize a página ou tente novamente.",
+    //   });
+    // };
 
-    eventSourceRef.current.onopen = () => {
-      console.log("EventSource connection established.");
-    };
+    // eventSourceRef.current.onopen = () => {
+    //   console.log("EventSource connection established.");
+    // };
 
-    return () => {
-      console.log("Closing EventSource.");
-      eventSourceRef.current?.close();
-    };
+    // return () => {
+    //   console.log("Closing EventSource.");
+    //   eventSourceRef.current?.close();
+    // };
   }, []);
 
   return (

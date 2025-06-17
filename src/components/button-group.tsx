@@ -6,13 +6,13 @@ import StopButton from "@/components/stop-button";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
 import AlertBox from "./alert-box";
 import { useEffect, useState } from "react";
-import { useServerAction } from "@/contexts/ServerActionContext";
+import { useToast } from "@/contexts/ToastContext";
 import LoadingScreen from "./loading-screen";
 
 export default function ButtonGroup() {
   const { serverStatus } = useServerStatus();
 
-  const { setActionState } = useServerAction();
+  const { setToastState } = useToast();
   const [isAwaitingStartResult, setIsAwaitingStartResult] = useState(false);
   const [isAwaitingStopResult, setIsAwaitingStopResult] = useState(false);
   const [isAwaitingRestartResult, setIsAwaitingRestartResult] = useState(false);
@@ -24,7 +24,7 @@ export default function ButtonGroup() {
   useEffect(() => {
     // Handle Start result
     if (isAwaitingStartResult && serverStatus === "online") {
-      setActionState({
+      setToastState({
         type: "success",
         message: "Servidor iniciado com sucesso!",
       });
@@ -33,20 +33,20 @@ export default function ButtonGroup() {
 
     // Handle Stop result
     if (isAwaitingStopResult && serverStatus === "offline") {
-      setActionState({
+      setToastState({
         type: "success",
         message: "Servidor parado com sucesso!",
       });
       setIsAwaitingStopResult(false);
     } else if (isAwaitingStopResult && serverStatus === "online") {
       // e.g., stop failed?
-      setActionState({ type: "error", message: "Falha ao parar o servidor." });
+      setToastState({ type: "error", message: "Falha ao parar o servidor." });
       setIsAwaitingStopResult(false);
     }
 
     // Handle Restart result (more complex, depends on final state - likely 'online')
     if (isAwaitingRestartResult && serverStatus === "online") {
-      setActionState({
+      setToastState({
         type: "success",
         message: "Servidor reiniciado com sucesso!",
       });
@@ -57,11 +57,11 @@ export default function ButtonGroup() {
     isAwaitingStartResult,
     isAwaitingStopResult,
     isAwaitingRestartResult,
-    setActionState,
+    setToastState,
   ]);
   return (
     <>
-      <LoadingScreen fadeOut={serverStatus !== undefined} />
+      {/* <LoadingScreen fadeOut={serverStatus !== undefined} /> */}
       <div className="mx-auto mb-5 flex flex-col gap-y-3.5">
         {(serverStatus === "offline" || serverStatus === "starting") && (
           <StartButton onStartInitiated={handleStartInitiated} />

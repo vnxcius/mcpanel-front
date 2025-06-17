@@ -1,6 +1,6 @@
 "use client";
 
-import { useServerAction } from "@/contexts/ServerActionContext";
+import { useToast } from "@/contexts/ToastContext";
 import {
   useState,
   useRef,
@@ -34,7 +34,7 @@ export default function UploadMods({
   const [noteblock_bass] = useSound("/sounds/noteblock_bass.mp3", {
     volume: 0.1,
   });
-  const { setActionState } = useServerAction();
+  const { setToastState } = useToast();
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -68,7 +68,7 @@ export default function UploadMods({
           }));
           onUpload(newMods);
           successful_hit();
-          setActionState({
+          setToastState({
             type: "success",
             message: "Mods carregados com sucesso!",
           });

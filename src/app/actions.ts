@@ -1,11 +1,11 @@
 "use server";
 
-import { ServerActionState } from "@/contexts/ServerActionContext";
+import { ToastState } from "@/contexts/ToastContext";
 import { getCurrentSession } from "@/lib/auth/session";
 
 const serverUrl = process.env.NEXT_PUBLIC_API_URL;
 
-export async function startServer(): Promise<ServerActionState> {
+export async function startServer(): Promise<ToastState> {
   const { session } = await getCurrentSession();
   if (!session)
     return { type: "error", message: "Sessão inválida. Faça login novamente." };
@@ -26,7 +26,7 @@ export async function startServer(): Promise<ServerActionState> {
   return { type: "warning", message: "Ligando o servidor..." };
 }
 
-export async function stopServer(): Promise<ServerActionState> {
+export async function stopServer(): Promise<ToastState> {
   const { session } = await getCurrentSession();
   if (!session)
     return { type: "error", message: "Sessão inválida. Faça login novamente." };
@@ -47,7 +47,7 @@ export async function stopServer(): Promise<ServerActionState> {
   return { type: "warning", message: "Desligando o servidor..." };
 }
 
-export async function restartServer(): Promise<ServerActionState> {
+export async function restartServer(): Promise<ToastState> {
   const { session } = await getCurrentSession();
   if (!session)
     return { type: "error", message: "Sessão inválida. Faça login novamente." };

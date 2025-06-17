@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useTransition } from "react";
-import { useServerAction } from "@/contexts/ServerActionContext";
+import { useToast } from "@/contexts/ToastContext";
 import AlertBox from "./alert-box";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -17,7 +17,7 @@ const initialState = {
 };
 
 export default function TokenInput() {
-  const { actionState, setActionState } = useServerAction();
+  const { toastState, setToastState } = useToast();
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const [click] = useSound("/sounds/click.mp3", { volume: 0.1 });
@@ -38,7 +38,7 @@ export default function TokenInput() {
 
     if (!validation.success) {
       console.log("Data not valid:", validation.error);
-      return setActionState({
+      return setToastState({
         type: "error",
         message: validation.error.issues[0].message,
       });
@@ -53,14 +53,14 @@ export default function TokenInput() {
         if (!resp.ok) {
           thorns();
           const data = await resp.json();
-          return setActionState({
+          return setToastState({
             type: data.type || "error",
             message: data.message || data.error,
           });
         }
 
         successful_hit();
-        setActionState({
+        setToastState({
           type: "success",
           message: "Senha verificada. Redirecionando...",
         });
@@ -71,10 +71,10 @@ export default function TokenInput() {
       } catch (error) {
         thorns();
         if (error instanceof Error) {
-          return setActionState({ type: "error", message: error.message });
+          return setToastState({ type: "error", message: error.message });
         }
 
-        return setActionState({
+        return setToastState({
           type: "error",
           message: "Erro ao verificar senha",
         });
@@ -85,7 +85,7 @@ export default function TokenInput() {
   const onInvalid = (errors: typeof form.formState.errors) => {
     const firstError = errors.password?.message;
     if (firstError) {
-      setActionState({
+      setToastState({
         type: "warning",
         message: firstError,
       });
@@ -94,8 +94,8 @@ export default function TokenInput() {
   };
 
   useEffect(() => {
-    if (actionState.type === "error" || actionState.type === "warning") {
-      setActionState(initialState);
+    if (toastState.type === "error" || toastState.type === "warning") {
+      setToastState(initialState);
     }
   }, [form.watch("password")]);
   return (
@@ -109,8 +109,8 @@ export default function TokenInput() {
           className={cn(
             "w-full border-2 border-neutral-700 bg-black p-3",
             "text-neutral-50 placeholder:text-neutral-500 focus:outline-none",
-            actionState.type === "error" && "border-red-500",
-            actionState.type === "warning" && "border-yellow-500",
+            toastState.type === "error" && "border-red-500",
+            toastState.type === "warning" && "border-yellow-500",
           )}
           autoComplete="off"
           placeholder="Insira a frase-chave aqui"

@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { SquareIcon } from "@phosphor-icons/react";
-import { useServerAction } from "@/contexts/ServerActionContext";
+import { useToast } from "@/contexts/ToastContext";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
 import { stopServer } from "@/app/actions";
 import useSound from "use-sound";
@@ -12,7 +12,7 @@ interface StopButtonProps {
 }
 
 export default function StopButton({ onStopInitiated }: StopButtonProps) {
-  const { setActionState } = useServerAction();
+  const { setToastState } = useToast();
   const { serverStatus } = useServerStatus();
   const [isPending, startTransition] = useTransition();
   const [click] = useSound("/sounds/click.mp3", { volume: 0.1 });
@@ -22,14 +22,14 @@ export default function StopButton({ onStopInitiated }: StopButtonProps) {
     startTransition(async () => {
       const response = await stopServer();
       if (response.type !== "success") {
-        setActionState({
+        setToastState({
           type: response.type,
           message: response.message || "Erro desconhecido",
         });
         return;
       }
       onStopInitiated();
-      setActionState(response);
+      setToastState(response);
     });
   };
 
