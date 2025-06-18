@@ -2,9 +2,9 @@
 
 import { useServerStatus } from "@/contexts/ServerStatusContext";
 import { cn } from "@/lib/utils";
-import { ArrowDownIcon, CaretDownIcon } from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react";
 import { Space_Mono } from "next/font/google";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import AlertBox from "./alert-box";
 
 const spaceMono = Space_Mono({ weight: "400", subsets: ["latin"] });

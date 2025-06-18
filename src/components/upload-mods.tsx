@@ -1,5 +1,6 @@
 "use client";
 
+import { uploadMod } from "@/app/actions";
 import { useToast } from "@/contexts/ToastContext";
 import {
   useState,
@@ -20,7 +21,6 @@ interface UploadResponse {
 
 export default function UploadMods({ apiUrl }: { apiUrl: string }) {
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const [successful_hit] = useSound("/sounds/successful_hit.ogg", {
     volume: 0.1,
@@ -40,31 +40,25 @@ export default function UploadMods({ apiUrl }: { apiUrl: string }) {
       files.forEach((f) => form.append("files", f));
 
       setBusy(true);
-      setError("");
+      setToastState({ type: "info", message: "Upando mods..." });
 
       startTransition(async () => {
         try {
-          const res = await fetch(`${apiUrl}/api/v2/signed/modlist/upload`, {
-            method: "POST",
-            body: form,
-          });
+          const res = await uploadMod(form);
 
-          if (!res.ok) {
+          if (res.type === "error") {
             noteblock_bass();
-            const data = await res.json();
-            setError(data.message);
+            console.log(res.message);
+            setToastState(res);
             return;
           }
 
           successful_hit();
-          setToastState({
-            type: "success",
-            message: "Mods carregados com sucesso!",
-          });
+          setToastState(res);
         } catch (err) {
           noteblock_bass();
           const msg = err instanceof Error ? err.message : "Erro desconhecido";
-          setError(msg);
+          setToastState({ type: "error", message: msg });
         } finally {
           setBusy(false);
           inputRef.current!.value = ""; // reset input
@@ -112,7 +106,6 @@ export default function UploadMods({ apiUrl }: { apiUrl: string }) {
           disabled={busy}
         />
       </div>
-      {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
     </div>
   );
 }
