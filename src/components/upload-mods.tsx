@@ -12,13 +12,6 @@ import {
 } from "react";
 import useSound from "use-sound";
 
-interface Mod {
-  name: string;
-}
-interface UploadResponse {
-  mods: string[];
-}
-
 export default function UploadMods({ apiUrl }: { apiUrl: string }) {
   const [busy, setBusy] = useState(false);
   const [dragOver, setDragOver] = useState(false);
