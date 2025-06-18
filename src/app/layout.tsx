@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ServerActionProvider } from "@/contexts/ServerActionContext";
+import { ToastProvider } from "@/contexts/ToastContext";
 import { ServerStatusProvider } from "@/contexts/ServerStatusContext";
 
 export const metadata: Metadata = {
@@ -16,9 +16,9 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body>
-        <ServerActionProvider>
+        <ToastProvider>
           <ServerStatusProvider>{children}</ServerStatusProvider>
-        </ServerActionProvider>
+        </ToastProvider>
       </body>
     </html>
   );

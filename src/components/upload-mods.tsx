@@ -1,6 +1,7 @@
 "use client";
 
-import { useServerAction } from "@/contexts/ServerActionContext";
+import { uploadMod } from "@/app/actions";
+import { useToast } from "@/contexts/ToastContext";
 import {
   useState,
   useRef,
@@ -18,15 +19,8 @@ interface UploadResponse {
   mods: string[];
 }
 
-export default function UploadMods({
-  apiUrl,
-  onUpload,
-}: {
-  apiUrl: string;
-  onUpload: (newMods: Mod[]) => void;
-}) {
+export default function UploadMods({ apiUrl }: { apiUrl: string }) {
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const [successful_hit] = useSound("/sounds/successful_hit.ogg", {
     volume: 0.1,
@@ -34,7 +28,7 @@ export default function UploadMods({
   const [noteblock_bass] = useSound("/sounds/noteblock_bass.mp3", {
     volume: 0.1,
   });
-  const { setActionState } = useServerAction();
+  const { setToastState } = useToast();
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -46,43 +40,32 @@ export default function UploadMods({
       files.forEach((f) => form.append("files", f));
 
       setBusy(true);
-      setError("");
+      setToastState({ type: "info", message: "Upando mods..." });
 
       startTransition(async () => {
         try {
-          const res = await fetch(`${apiUrl}/api/v2/modlist/upload`, {
-            method: "POST",
-            body: form,
-          });
+          const res = await uploadMod(form);
 
-          if (!res.ok) {
+          if (res.type === "error") {
             noteblock_bass();
-            const data = await res.json();
-            setError(data.message);
+            console.log(res.message);
+            setToastState(res);
             return;
           }
 
-          const data: UploadResponse = await res.json();
-          const newMods = data.mods.map((n) => ({
-            name: n.replace(/\.jar$/i, ""),
-          }));
-          onUpload(newMods);
           successful_hit();
-          setActionState({
-            type: "success",
-            message: "Mods carregados com sucesso!",
-          });
+          setToastState(res);
         } catch (err) {
           noteblock_bass();
           const msg = err instanceof Error ? err.message : "Erro desconhecido";
-          setError(msg);
+          setToastState({ type: "error", message: msg });
         } finally {
           setBusy(false);
           inputRef.current!.value = ""; // reset input
         }
       });
     },
-    [apiUrl, onUpload],
+    [apiUrl],
   );
 
   const handleSelect = (e: ChangeEvent<HTMLInputElement>) => {
@@ -123,7 +106,6 @@ export default function UploadMods({
           disabled={busy}
         />
       </div>
-      {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
     </div>
   );
 }

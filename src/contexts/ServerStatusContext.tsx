@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { useServerAction } from "./ServerActionContext";
+import { useToast } from "./ToastContext";
+import { Mod } from "@/components/modlist";
 
 export type ServerStatus =
   | "starting"
@@ -9,14 +10,19 @@ export type ServerStatus =
   | "offline"
   | "restarting"
   | "stopping"
+  | "error"
   | undefined;
 
 interface ServerStatusContextType {
   serverStatus: ServerStatus;
+  modlist: Mod[];
+  logLines: string[];
 }
 
 const ServerStatusContext = createContext<ServerStatusContextType>({
   serverStatus: undefined,
+  modlist: [],
+  logLines: [],
 });
 
 export const useServerStatus = () => useContext(ServerStatusContext);
@@ -27,53 +33,63 @@ export function ServerStatusProvider({
   children: React.ReactNode;
 }) {
   const [serverStatus, setServerStatus] = useState<ServerStatus>(undefined);
-  const eventSourceRef = useRef<EventSource | null>(null);
-  const { setActionState } = useServerAction();
+  const [modlist, setModlist] = useState<Mod[]>([]);
+  const [logLines, setLogLines] = useState<string[]>([]);
+
+  const webSocketRef = useRef<WebSocket | null>(null);
+  const { setToastState } = useToast();
 
   useEffect(() => {
     const serverUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!serverUrl) return console.error("NEXT_PUBLIC_API_URL not found.");
 
-    eventSourceRef.current = new EventSource(
-      serverUrl + "/api/v2/server-status-stream",
-    );
+    webSocketRef.current = new WebSocket(serverUrl + "/api/v2/ws");
 
-    eventSourceRef.current.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data?.status) {
-          const newStatus = data.status as ServerStatus;
-          console.log("SSE Received Status:", newStatus);
-          setServerStatus(newStatus);
-        }
-      } catch (error) {
-        console.error("Failed to parse SSE message:", event.data, error);
+    webSocketRef.current.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+
+      switch (msg.type) {
+        case "status_update":
+          setServerStatus(msg.payload.status);
+          break;
+        case "modlist_update":
+          setModlist(msg.payload.mods);
+          break;
+        case "log_snapshot": // first 200 lines on connect
+          setLogLines(msg.payload.lines);
+          break;
+        case "log_append": // one new line
+          setLogLines((prev) => {
+            const next = [...prev, ...msg.payload.lines];
+            return next.length > 200 ? next.slice(-200) : next;
+          });
+          break;
       }
     };
 
-    eventSourceRef.current.onerror = (error) => {
-      console.error("EventSource failed:", error);
-      eventSourceRef.current?.close();
-      setServerStatus("offline");
-      setActionState({
+    webSocketRef.current.onerror = (error) => {
+      console.error("WebSocket failed:", error);
+      webSocketRef.current?.close();
+      setServerStatus("error");
+      setToastState({
         type: "error",
         message:
-          "Conexão com API foi encerrada. Atualize a página ou tente novamente.",
+          "Conexão com API foi perdida. Atualize a página ou tente novamente.",
       });
     };
 
-    eventSourceRef.current.onopen = () => {
-      console.log("EventSource connection established.");
+    webSocketRef.current.onopen = () => {
+      console.log("WebSocket connection established.");
     };
 
     return () => {
-      console.log("Closing EventSource.");
-      eventSourceRef.current?.close();
+      console.log("Closing WebSocket connection.");
+      webSocketRef.current?.close();
     };
   }, []);
 
   return (
-    <ServerStatusContext.Provider value={{ serverStatus }}>
+    <ServerStatusContext.Provider value={{ serverStatus, modlist, logLines }}>
       {children}
     </ServerStatusContext.Provider>
   );

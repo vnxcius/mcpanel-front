@@ -1,29 +1,34 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { matchSorter } from "match-sorter";
 import { InfoIcon } from "@phosphor-icons/react";
-import { useServerAction } from "@/contexts/ServerActionContext";
+import { useToast } from "@/contexts/ToastContext";
 import UploadMods from "./upload-mods";
 import useSound from "use-sound";
+import { useServerStatus } from "@/contexts/ServerStatusContext";
+import { deleteMod } from "@/app/actions";
 
-interface Mod {
+export interface Mod {
   name: string;
 }
-interface ModlistJSON {
+export interface ModlistJSON {
   mods: Mod[];
 }
 
 export default function Modlist() {
-  const [mods, setMods] = useState<Mod[]>([]);
+  const { modlist } = useServerStatus();
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [targetMod, setTargetMod] = useState<Mod | null>(null);
   const [isPending, startTransition] = useTransition();
-    const [successful_hit] = useSound("/sounds/successful_hit.ogg", {
-      volume: 0.1,
-    });
-  const { setActionState } = useServerAction();
+  const [successful_hit] = useSound("/sounds/successful_hit.ogg", {
+    volume: 0.1,
+  });
+  const [noteblock_bass] = useSound("/sounds/noteblock_bass.mp3", {
+    volume: 0.1,
+  });
+  const { setToastState } = useToast();
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   if (!apiUrl) throw new Error("NEXT_PUBLIC_API_URL not found.");
@@ -31,25 +36,15 @@ export default function Modlist() {
   /** Normalise: lower‑case & strip space, underscore, hyphen */
   const normalize = (txt: string) => txt.toLowerCase().replace(/[\s_-]+/g, "");
 
-  const updateModlist = async () => {
-    fetch(`${apiUrl}/api/v2/modlist`)
-      .then((r) => r.json())
-      .then((d: ModlistJSON) => setMods(d.mods));
-  };
-
-  useEffect(() => {
-    updateModlist();
-  }, []);
-
   const filtered = useMemo(
     () =>
       search
-        ? matchSorter(mods, normalize(search), {
+        ? matchSorter(modlist, normalize(search), {
             keys: [(m) => normalize(m.name)],
             threshold: matchSorter.rankings.CONTAINS,
           })
-        : mods,
-    [mods, search],
+        : modlist,
+    [modlist, search],
   );
 
   const highlight = (name: string) => {
@@ -88,14 +83,6 @@ export default function Modlist() {
     setModalOpen(true);
   };
 
-  const deleteModRequest = async (apiUrl: string, name: string) =>
-    fetch(`${apiUrl}/api/v2/modlist/${encodeURIComponent(name)}`, {
-      method: "DELETE",
-    });
-
-  const removeMod = (name: string) => (mods: Mod[]) =>
-    mods.filter((m) => m.name !== name);
-
   const confirmDelete = () => {
     if (!targetMod) return;
 
@@ -104,36 +91,29 @@ export default function Modlist() {
     startTransition(() => handleDelete(name));
   };
 
-  const handleUpload = (newMods: Mod[]) => {
-    setMods((prev) => [
-      ...prev,
-      ...newMods.filter((m) => !prev.some((p) => p.name === m.name)),
-    ]);
-  };
-
   const handleDelete = async (name: string) => {
+    setToastState({ type: "info", message: "Removendo mod..." });
     try {
-      const res = await deleteModRequest(apiUrl, name);
+      const res = await deleteMod(name);
 
-      if (!res.ok) {
-        setActionState({
-          type: "error",
-          message: `Erro ao remover o mod ${name}: ${res.statusText}`,
-        });
+      if (res.type === "error") {
+        noteblock_bass();
+        console.log(res.message);
+        setToastState(res);
         return;
       }
 
       setSearch("");
       setModalOpen(false);
       setTargetMod(null);
-      setMods(removeMod(name));
       successful_hit();
-      setActionState({ type: "success", message: "Mod removido com sucesso!" });
+      setToastState({ type: "success", message: "Mod removido com sucesso!" });
     } catch (err) {
+      noteblock_bass();
       setModalOpen(false);
       setTargetMod(null);
       const message = err instanceof Error ? err.message : "Erro desconhecido";
-      setActionState({ type: "error", message });
+      setToastState({ type: "error", message });
     }
   };
 
@@ -141,14 +121,14 @@ export default function Modlist() {
     <div className="my-10 w-full">
       <div className="flex items-end gap-3">
         <h2 className="text-2xl leading-none text-lime-500">Modlist</h2>
-        <p className="text-sm text-neutral-500">{mods.length} mods</p>
+        <p className="text-sm text-neutral-500">{modlist.length} mods</p>
       </div>
       <hr className="mt-2.5 border-neutral-800" />
 
-      <UploadMods apiUrl={apiUrl} onUpload={handleUpload} />
+      <UploadMods apiUrl={apiUrl} />
       <input
         type="text"
-        placeholder="Search mods..."
+        placeholder="Procurar mods..."
         className="mt-4 w-full rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:border-green-500 focus:outline-none"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -158,7 +138,7 @@ export default function Modlist() {
         <InfoIcon size={16} />
         <p className="text-sm">Clique em um mod para removê-lo</p>
       </div>
-      <ul className="[&::-webkit-scrollbar-thumb]:bg-accent text-accent my-4 max-h-96 list-inside list-decimal overflow-y-scroll [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-neutral-800">
+      <ul className="[&::-webkit-scrollbar-thumb]:bg-accent text-accent my-4 max-h-[425px] list-inside list-decimal overflow-y-scroll [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-neutral-900">
         {filtered.length ? (
           filtered.map((m) => (
             <li key={m.name}>
@@ -203,7 +183,7 @@ export default function Modlist() {
                 disabled
                 className="relative flex w-full flex-1 cursor-pointer items-center justify-center gap-1.5 border-2 border-black bg-red-600 pt-2 pb-3 text-neutral-100 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-red-600 before:brightness-150 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:bg-red-500 after:brightness-50 hover:translate-y-px hover:bg-red-500/90 hover:after:h-[3px] disabled:bg-red-500/50 disabled:text-neutral-400 disabled:before:bg-red-600/50"
               >
-                Deleting…
+                Deletando…
               </button>
             ) : (
               <div className="flex gap-3">
@@ -211,7 +191,7 @@ export default function Modlist() {
                   className="relative flex w-full flex-1 cursor-pointer items-center justify-center gap-1.5 border-2 border-black bg-red-600 pt-2 pb-3 text-neutral-100 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-red-600 before:brightness-150 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:bg-red-500 after:brightness-50 hover:translate-y-px hover:bg-red-500/90 hover:after:h-[3px] disabled:bg-red-500/50 disabled:text-neutral-400 disabled:before:bg-red-600/50"
                   onClick={confirmDelete}
                 >
-                  Sim, deletar
+                  Sim
                 </button>
                 <button
                   className="after:bg-button-shadow relative ml-auto block w-fit flex-1 cursor-pointer border-2 border-black bg-neutral-300 px-2 pt-2 pb-3 text-center text-neutral-800 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-neutral-300 before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full hover:translate-y-px hover:bg-neutral-300/90 hover:after:h-[3px] disabled:bg-neutral-500 disabled:before:bg-neutral-300/50"

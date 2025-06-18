@@ -17,10 +17,12 @@ export default function ServerStatus() {
             "text-blue-500 after:animate-pulse after:bg-blue-500",
           serverStatus === "online" &&
             "text-green-500 after:animate-pulse after:bg-green-500",
-          (serverStatus === "offline" || serverStatus === "stopping") &&
-            "text-red-500 after:bg-red-500",
           serverStatus === "restarting" &&
             "text-amber-400 after:animate-pulse after:bg-amber-400",
+          (serverStatus === "offline" ||
+            serverStatus === "stopping" ||
+            serverStatus === "error") &&
+            "text-red-500 after:bg-red-500",
         )}
       >
         {serverStatus === undefined && "Carregando..."}
@@ -29,6 +31,7 @@ export default function ServerStatus() {
         {serverStatus === "offline" && "Offline"}
         {serverStatus === "restarting" && "Reiniciando"}
         {serverStatus === "stopping" && "Parando"}
+        {serverStatus === "error" && "Erro"}
       </p>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { PlayIcon } from "@phosphor-icons/react";
-import { useServerAction } from "@/contexts/ServerActionContext";
+import { useToast } from "@/contexts/ToastContext";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
 import { startServer } from "@/app/actions";
 import useSound from "use-sound";
@@ -12,25 +12,33 @@ interface StartButtonProps {
 }
 
 export default function StartButton({ onStartInitiated }: StartButtonProps) {
-  const { setActionState } = useServerAction();
+  const { setToastState } = useToast();
   const { serverStatus } = useServerStatus();
   const [isPending, startTransition] = useTransition();
   const [click] = useSound("/sounds/click.mp3", { volume: 0.1 });
 
   const handleStart = () => {
     click();
+
     startTransition(async () => {
+      onStartInitiated();
       try {
         const response = await startServer();
-        setActionState({ type: response.type, message: response.message });
-        onStartInitiated();
+        if (response.type !== "success") {
+          setToastState({
+            type: response.type,
+            message: response.message || "Erro desconhecido",
+          });
+          return;
+        }
+        setToastState({ type: response.type, message: response.message });
       } catch (error) {
         if (error instanceof Error) {
-          return setActionState({ type: "error", message: error.message });
+          return setToastState({ type: "error", message: error.message });
         }
 
-        console.log(error);
-        setActionState({ type: "error", message: "Erro desconhecido" });
+        console.error(error);
+        setToastState({ type: "error", message: "Erro desconhecido" });
       }
     });
   };
