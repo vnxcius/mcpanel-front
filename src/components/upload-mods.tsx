@@ -18,13 +18,7 @@ interface UploadResponse {
   mods: string[];
 }
 
-export default function UploadMods({
-  apiUrl,
-  onUpload,
-}: {
-  apiUrl: string;
-  onUpload: (newMods: Mod[]) => void;
-}) {
+export default function UploadMods({ apiUrl }: { apiUrl: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [dragOver, setDragOver] = useState(false);
@@ -50,7 +44,7 @@ export default function UploadMods({
 
       startTransition(async () => {
         try {
-          const res = await fetch(`${apiUrl}/api/v2/modlist/upload`, {
+          const res = await fetch(`${apiUrl}/api/v2/signed/modlist/upload`, {
             method: "POST",
             body: form,
           });
@@ -62,11 +56,6 @@ export default function UploadMods({
             return;
           }
 
-          const data: UploadResponse = await res.json();
-          const newMods = data.mods.map((n) => ({
-            name: n.replace(/\.jar$/i, ""),
-          }));
-          onUpload(newMods);
           successful_hit();
           setToastState({
             type: "success",
@@ -82,7 +71,7 @@ export default function UploadMods({
         }
       });
     },
-    [apiUrl, onUpload],
+    [apiUrl],
   );
 
   const handleSelect = (e: ChangeEvent<HTMLInputElement>) => {

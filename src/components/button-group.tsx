@@ -61,7 +61,7 @@ export default function ButtonGroup() {
   ]);
   return (
     <>
-      {/* <LoadingScreen fadeOut={serverStatus !== undefined} /> */}
+      <LoadingScreen fadeOut={serverStatus !== undefined} />
       <div className="mx-auto mb-5 flex flex-col gap-y-3.5">
         {(serverStatus === "offline" || serverStatus === "starting") && (
           <StartButton onStartInitiated={handleStartInitiated} />

@@ -6,6 +6,7 @@ import { InfoIcon } from "@phosphor-icons/react";
 import { useToast } from "@/contexts/ToastContext";
 import UploadMods from "./upload-mods";
 import useSound from "use-sound";
+import { useServerStatus } from "@/contexts/ServerStatusContext";
 
 export interface Mod {
   name: string;
@@ -15,14 +16,14 @@ export interface ModlistJSON {
 }
 
 export default function Modlist() {
-  const [mods, setMods] = useState<Mod[]>([]);
+  const { modlist } = useServerStatus();
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [targetMod, setTargetMod] = useState<Mod | null>(null);
   const [isPending, startTransition] = useTransition();
-    const [successful_hit] = useSound("/sounds/successful_hit.ogg", {
-      volume: 0.1,
-    });
+  const [successful_hit] = useSound("/sounds/successful_hit.ogg", {
+    volume: 0.1,
+  });
   const { setToastState } = useToast();
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -31,25 +32,15 @@ export default function Modlist() {
   /** Normalise: lower‑case & strip space, underscore, hyphen */
   const normalize = (txt: string) => txt.toLowerCase().replace(/[\s_-]+/g, "");
 
-  const updateModlist = async () => {
-    fetch(`${apiUrl}/api/v2/modlist`)
-      .then((r) => r.json())
-      .then((d: ModlistJSON) => setMods(d.mods));
-  };
-
-  useEffect(() => {
-    updateModlist();
-  }, []);
-
   const filtered = useMemo(
     () =>
       search
-        ? matchSorter(mods, normalize(search), {
+        ? matchSorter(modlist, normalize(search), {
             keys: [(m) => normalize(m.name)],
             threshold: matchSorter.rankings.CONTAINS,
           })
-        : mods,
-    [mods, search],
+        : modlist,
+    [modlist, search],
   );
 
   const highlight = (name: string) => {
@@ -89,12 +80,12 @@ export default function Modlist() {
   };
 
   const deleteModRequest = async (apiUrl: string, name: string) =>
-    fetch(`${apiUrl}/api/v2/modlist/${encodeURIComponent(name)}`, {
-      method: "DELETE",
-    });
-
-  const removeMod = (name: string) => (mods: Mod[]) =>
-    mods.filter((m) => m.name !== name);
+    fetch(
+      `${apiUrl}/api/v2/signed/modlist/delete/${encodeURIComponent(name)}`,
+      {
+        method: "DELETE",
+      },
+    );
 
   const confirmDelete = () => {
     if (!targetMod) return;
@@ -102,13 +93,6 @@ export default function Modlist() {
     const { name } = targetMod;
 
     startTransition(() => handleDelete(name));
-  };
-
-  const handleUpload = (newMods: Mod[]) => {
-    setMods((prev) => [
-      ...prev,
-      ...newMods.filter((m) => !prev.some((p) => p.name === m.name)),
-    ]);
   };
 
   const handleDelete = async (name: string) => {
@@ -126,7 +110,6 @@ export default function Modlist() {
       setSearch("");
       setModalOpen(false);
       setTargetMod(null);
-      setMods(removeMod(name));
       successful_hit();
       setToastState({ type: "success", message: "Mod removido com sucesso!" });
     } catch (err) {
@@ -141,14 +124,14 @@ export default function Modlist() {
     <div className="my-10 w-full">
       <div className="flex items-end gap-3">
         <h2 className="text-2xl leading-none text-lime-500">Modlist</h2>
-        <p className="text-sm text-neutral-500">{mods.length} mods</p>
+        <p className="text-sm text-neutral-500">{modlist.length} mods</p>
       </div>
       <hr className="mt-2.5 border-neutral-800" />
 
-      <UploadMods apiUrl={apiUrl} onUpload={handleUpload} />
+      <UploadMods apiUrl={apiUrl} />
       <input
         type="text"
-        placeholder="Search mods..."
+        placeholder="Procurar mods..."
         className="mt-4 w-full rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:border-green-500 focus:outline-none"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -203,7 +186,7 @@ export default function Modlist() {
                 disabled
                 className="relative flex w-full flex-1 cursor-pointer items-center justify-center gap-1.5 border-2 border-black bg-red-600 pt-2 pb-3 text-neutral-100 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-red-600 before:brightness-150 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:bg-red-500 after:brightness-50 hover:translate-y-px hover:bg-red-500/90 hover:after:h-[3px] disabled:bg-red-500/50 disabled:text-neutral-400 disabled:before:bg-red-600/50"
               >
-                Deleting…
+                Deletando…
               </button>
             ) : (
               <div className="flex gap-3">

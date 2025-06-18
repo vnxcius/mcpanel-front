@@ -10,7 +10,7 @@ export async function startServer(): Promise<ToastState> {
   if (!session)
     return { type: "error", message: "Sessão inválida. Faça login novamente." };
 
-  const res = await fetch(`${serverUrl}/api/v2/server/start`, {
+  const res = await fetch(`${serverUrl}/api/v2/signed/server/start`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${session.id}`,
@@ -31,7 +31,7 @@ export async function stopServer(): Promise<ToastState> {
   if (!session)
     return { type: "error", message: "Sessão inválida. Faça login novamente." };
 
-  const res = await fetch(`${serverUrl}/api/v2/server/stop`, {
+  const res = await fetch(`${serverUrl}/api/v2/signed/server/stop`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${session.id}`,
@@ -52,7 +52,7 @@ export async function restartServer(): Promise<ToastState> {
   if (!session)
     return { type: "error", message: "Sessão inválida. Faça login novamente." };
 
-  const res = await fetch(`${serverUrl}/api/v2/server/restart`, {
+  const res = await fetch(`${serverUrl}/api/v2/signed/server/restart`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${session.id}`,

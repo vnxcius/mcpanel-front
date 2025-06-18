@@ -14,7 +14,7 @@ export default async function Home() {
   return (
     <div className="font-minecraft mx-auto my-8 flex max-w-[1366px] flex-col items-start gap-16 md:flex-row md:gap-6">
       <div className="max-w-sm space-y-4 px-4 md:max-w-screen">
-        <LatestLog />
+        {/* <LatestLog /> */}
         <ButtonGroup />
         <div className="flex w-full items-end justify-between">
           <ServerStatus />
@@ -25,7 +25,7 @@ export default async function Home() {
       <div className="w-full max-w-xl px-4 tracking-wide">
         <h2 className="text-2xl text-green-500">Server Info</h2>
         <hr className="mt-2.5 border-neutral-800" />
-        <ServerInfo />
+        {/* <ServerInfo /> */}
         <Modlist />
       </div>
     </div>

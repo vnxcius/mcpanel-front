@@ -21,11 +21,19 @@ export default function RestartButton({
 
   const handleRestart = () => {
     click();
+
     startTransition(async () => {
+      onRestartInitiated();
       try {
         const response = await restartServer();
+        if (response.type !== "success") {
+          setToastState({
+            type: response.type,
+            message: response.message || "Erro desconhecido",
+          });
+          return;
+        }
         setToastState({ type: response.type, message: response.message });
-        onRestartInitiated();
       } catch (error) {
         if (error instanceof Error) {
           return setToastState({ type: "error", message: error.message });

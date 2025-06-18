@@ -10,14 +10,17 @@ export type ServerStatus =
   | "offline"
   | "restarting"
   | "stopping"
+  | "error"
   | undefined;
 
 interface ServerStatusContextType {
   serverStatus: ServerStatus;
+  modlist: Mod[];
 }
 
 const ServerStatusContext = createContext<ServerStatusContextType>({
   serverStatus: undefined,
+  modlist: [],
 });
 
 export const useServerStatus = () => useContext(ServerStatusContext);
@@ -28,7 +31,7 @@ export function ServerStatusProvider({
   children: React.ReactNode;
 }) {
   const [serverStatus, setServerStatus] = useState<ServerStatus>(undefined);
-  const [modlist, setMods] = useState<Mod[]>([]);
+  const [modlist, setModlist] = useState<Mod[]>([]);
 
   const webSocketRef = useRef<WebSocket | null>(null);
   const { setToastState } = useToast();
@@ -37,47 +40,48 @@ export function ServerStatusProvider({
     const serverUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!serverUrl) return console.error("NEXT_PUBLIC_API_URL not found.");
 
-    webSocketRef.current = new WebSocket(
-      serverUrl + "/api/v2/ws",
-    );
-    console.log(webSocketRef.current);
+    webSocketRef.current = new WebSocket(serverUrl + "/api/v2/ws");
 
-    // webSocketRef.current.onmessage = (event) => {
-    //   try {
-    //     const data = JSON.parse(event.data);
-    //     if (data?.status) {
-    //       const newStatus = data.status as ServerStatus;
-    //       console.log("SSE Received Status:", newStatus);
-    //       setServerStatus(newStatus);
-    //     }
-    //   } catch (error) {
-    //     console.error("Failed to parse SSE message:", event.data, error);
-    //   }
-    // };
+    webSocketRef.current.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "status_update") {
+          console.log("Received status update:", data.payload.status);
+          setServerStatus(data.payload.status);
+        }
 
-    // eventSourceRef.current.onerror = (error) => {
-    //   console.error("EventSource failed:", error);
-    //   eventSourceRef.current?.close();
-    //   setServerStatus("offline");
-    //   setToastState({
-    //     type: "error",
-    //     message:
-    //       "Conexão com API foi encerrada. Atualize a página ou tente novamente.",
-    //   });
-    // };
+        if (data.type === "modlist_update") {
+          console.log("Received modlist update:", data.payload.mods);
+          setModlist(data.payload.mods);
+        }
+      } catch (error) {
+        console.error("Error parsing WebSocket message:", error);
+      }
+    };
 
-    // eventSourceRef.current.onopen = () => {
-    //   console.log("EventSource connection established.");
-    // };
+    webSocketRef.current.onerror = (error) => {
+      console.error("WebSocket failed:", error);
+      webSocketRef.current?.close();
+      setServerStatus("error");
+      setToastState({
+        type: "error",
+        message:
+          "Conexão com API foi encerrada. Atualize a página ou tente novamente.",
+      });
+    };
 
-    // return () => {
-    //   console.log("Closing EventSource.");
-    //   eventSourceRef.current?.close();
-    // };
+    webSocketRef.current.onopen = () => {
+      console.log("WebSocket connection established.");
+    };
+
+    return () => {
+      console.log("Closing WebSocket connection.");
+      webSocketRef.current?.close();
+    };
   }, []);
 
   return (
-    <ServerStatusContext.Provider value={{ serverStatus }}>
+    <ServerStatusContext.Provider value={{ serverStatus, modlist }}>
       {children}
     </ServerStatusContext.Provider>
   );

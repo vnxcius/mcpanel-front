@@ -19,17 +19,27 @@ export default function StopButton({ onStopInitiated }: StopButtonProps) {
 
   const handleStop = () => {
     click();
+
     startTransition(async () => {
-      const response = await stopServer();
-      if (response.type !== "success") {
-        setToastState({
-          type: response.type,
-          message: response.message || "Erro desconhecido",
-        });
-        return;
-      }
       onStopInitiated();
-      setToastState(response);
+      try {
+        const response = await stopServer();
+        if (response.type !== "success") {
+          setToastState({
+            type: response.type,
+            message: response.message || "Erro desconhecido",
+          });
+          return;
+        }
+        setToastState({ type: response.type, message: response.message });
+      } catch (error) {
+        if (error instanceof Error) {
+          return setToastState({ type: "error", message: error.message });
+        }
+
+        console.log(error);
+        setToastState({ type: "error", message: "Erro desconhecido" });
+      }
     });
   };
 

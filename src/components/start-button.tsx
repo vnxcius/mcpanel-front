@@ -19,11 +19,19 @@ export default function StartButton({ onStartInitiated }: StartButtonProps) {
 
   const handleStart = () => {
     click();
+
     startTransition(async () => {
+      onStartInitiated();
       try {
         const response = await startServer();
+        if (response.type !== "success") {
+          setToastState({
+            type: response.type,
+            message: response.message || "Erro desconhecido",
+          });
+          return;
+        }
         setToastState({ type: response.type, message: response.message });
-        onStartInitiated();
       } catch (error) {
         if (error instanceof Error) {
           return setToastState({ type: "error", message: error.message });
