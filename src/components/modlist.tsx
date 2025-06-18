@@ -141,7 +141,7 @@ export default function Modlist() {
         <InfoIcon size={16} />
         <p className="text-sm">Clique em um mod para removê-lo</p>
       </div>
-      <ul className="[&::-webkit-scrollbar-thumb]:bg-accent text-accent my-4 max-h-96 list-inside list-decimal overflow-y-scroll [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-neutral-800">
+      <ul className="[&::-webkit-scrollbar-thumb]:bg-accent text-accent my-4 max-h-[425px] list-inside list-decimal overflow-y-scroll [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-neutral-900">
         {filtered.length ? (
           filtered.map((m) => (
             <li key={m.name}>

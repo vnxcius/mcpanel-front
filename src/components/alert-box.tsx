@@ -16,7 +16,7 @@ export default function AlertBox() {
   return (
     <div
       className={cn(
-        "relative mx-auto mb-4 flex max-w-lg items-center space-x-2 border-2 border-black",
+        "relative flex w-1/2 max-w-lg items-center space-x-2 border-2 border-black",
         "after:bottom-0 after:left-0 after:h-1 after:w-full",
         "px-3 pt-1.5 pb-2.5 text-sm after:absolute",
         toastState.type === "error" &&

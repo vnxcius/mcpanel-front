@@ -37,7 +37,7 @@ export default function StartButton({ onStartInitiated }: StartButtonProps) {
           return setToastState({ type: "error", message: error.message });
         }
 
-        console.log(error);
+        console.error(error);
         setToastState({ type: "error", message: "Erro desconhecido" });
       }
     });

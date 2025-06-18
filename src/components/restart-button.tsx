@@ -39,7 +39,7 @@ export default function RestartButton({
           return setToastState({ type: "error", message: error.message });
         }
 
-        console.log(error);
+        console.error(error);
         setToastState({ type: "error", message: "Erro desconhecido" });
       }
     });

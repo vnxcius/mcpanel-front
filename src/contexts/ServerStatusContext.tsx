@@ -16,11 +16,13 @@ export type ServerStatus =
 interface ServerStatusContextType {
   serverStatus: ServerStatus;
   modlist: Mod[];
+  logLines: string[];
 }
 
 const ServerStatusContext = createContext<ServerStatusContextType>({
   serverStatus: undefined,
   modlist: [],
+  logLines: [],
 });
 
 export const useServerStatus = () => useContext(ServerStatusContext);
@@ -32,6 +34,7 @@ export function ServerStatusProvider({
 }) {
   const [serverStatus, setServerStatus] = useState<ServerStatus>(undefined);
   const [modlist, setModlist] = useState<Mod[]>([]);
+  const [logLines, setLogLines] = useState<string[]>([]);
 
   const webSocketRef = useRef<WebSocket | null>(null);
   const { setToastState } = useToast();
@@ -43,19 +46,24 @@ export function ServerStatusProvider({
     webSocketRef.current = new WebSocket(serverUrl + "/api/v2/ws");
 
     webSocketRef.current.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.type === "status_update") {
-          console.log("Received status update:", data.payload.status);
-          setServerStatus(data.payload.status);
-        }
+      const msg = JSON.parse(event.data);
 
-        if (data.type === "modlist_update") {
-          console.log("Received modlist update:", data.payload.mods);
-          setModlist(data.payload.mods);
-        }
-      } catch (error) {
-        console.error("Error parsing WebSocket message:", error);
+      switch (msg.type) {
+        case "status_update":
+          setServerStatus(msg.payload.status);
+          break;
+        case "modlist_update":
+          setModlist(msg.payload.mods);
+          break;
+        case "log_snapshot": // first 200 lines on connect
+          setLogLines(msg.payload.lines);
+          break;
+        case "log_append": // one new line
+          setLogLines((prev) => {
+            const next = [...prev, ...msg.payload.lines];
+            return next.length > 200 ? next.slice(-200) : next;
+          });
+          break;
       }
     };
 
@@ -66,7 +74,7 @@ export function ServerStatusProvider({
       setToastState({
         type: "error",
         message:
-          "Conexão com API foi encerrada. Atualize a página ou tente novamente.",
+          "Conexão com API foi perdida. Atualize a página ou tente novamente.",
       });
     };
 
@@ -81,7 +89,7 @@ export function ServerStatusProvider({
   }, []);
 
   return (
-    <ServerStatusContext.Provider value={{ serverStatus, modlist }}>
+    <ServerStatusContext.Provider value={{ serverStatus, modlist, logLines }}>
       {children}
     </ServerStatusContext.Provider>
   );

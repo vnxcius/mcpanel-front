@@ -12,20 +12,23 @@ export default async function Home() {
   if (!session) return redirect("/");
 
   return (
-    <div className="font-minecraft mx-auto my-8 flex max-w-[1366px] flex-col items-start gap-16 md:flex-row md:gap-6">
-      <div className="max-w-sm space-y-4 px-4 md:max-w-screen">
-        {/* <LatestLog /> */}
-        <ButtonGroup />
-        <div className="flex w-full items-end justify-between">
-          <ServerStatus />
-          <LogoutButton />
+    <div className="font-minecraft mx-auto flex h-screen max-w-[1366px] flex-col gap-16 py-8 md:flex-row md:gap-6">
+      <div className="mx-auto w-full max-w-xl px-4 md:max-w-prose lg:max-w-screen">
+        <div className="flex h-full max-h-full flex-col justify-between gap-1.5 pb-4">
+          <LatestLog />
+          <div className="mb-3.5 flex w-full flex-1 items-end justify-between">
+            <ServerStatus />
+            <LogoutButton />
+          </div>
+          <ButtonGroup />
+          <hr className="border-neutral-800" />
         </div>
-        <hr className="mt-3.5 border-neutral-800" />
       </div>
-      <div className="w-full max-w-xl px-4 tracking-wide">
+
+      <div className="mx-auto w-full max-w-lg px-4 tracking-wide">
         <h2 className="text-2xl text-green-500">Server Info</h2>
         <hr className="mt-2.5 border-neutral-800" />
-        {/* <ServerInfo /> */}
+        <ServerInfo />
         <Modlist />
       </div>
     </div>

@@ -37,7 +37,7 @@ export default function TokenInput() {
     const validation = loginSchema.safeParse(data);
 
     if (!validation.success) {
-      console.log("Data not valid:", validation.error);
+      console.error("Data not valid:", validation.error);
       return setToastState({
         type: "error",
         message: validation.error.issues[0].message,

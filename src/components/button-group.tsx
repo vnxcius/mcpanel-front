@@ -60,7 +60,7 @@ export default function ButtonGroup() {
     setToastState,
   ]);
   return (
-    <>
+    <div>
       <LoadingScreen fadeOut={serverStatus !== undefined} />
       <div className="mx-auto mb-5 flex flex-col gap-y-3.5">
         {(serverStatus === "offline" || serverStatus === "starting") && (
@@ -73,7 +73,6 @@ export default function ButtonGroup() {
           </div>
         )}
       </div>
-      <AlertBox />
-    </>
+    </div>
   );
 }

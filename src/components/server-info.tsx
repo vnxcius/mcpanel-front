@@ -47,8 +47,8 @@ export default function ServerInfo() {
 
   if (!data)
     return (
-      <div className="flex h-32 items-center justify-center">
-        <div className="size-7 animate-pulse rounded-full bg-blue-500"></div>
+      <div className="flex h-24 items-center justify-center">
+        <div className="loader-server-info"></div>
       </div>
     );
   return (
