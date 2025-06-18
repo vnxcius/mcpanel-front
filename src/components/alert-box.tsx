@@ -4,6 +4,7 @@ import { useToast } from "@/contexts/ToastContext";
 import { cn } from "@/lib/utils";
 import {
   CheckCircleIcon,
+  InfoIcon,
   WarningIcon,
   XCircleIcon,
   XIcon,
@@ -25,6 +26,8 @@ export default function AlertBox() {
           "bg-yellow-600 text-neutral-800 before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-yellow-600 before:brightness-125 after:bg-yellow-600 after:brightness-50",
         toastState.type === "success" &&
           "bg-green-500 text-neutral-800 before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-green-500 before:brightness-125 after:bg-green-800",
+        toastState.type === "info" &&
+          "bg-sky-500 text-neutral-800 before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-sky-500 before:brightness-125 after:bg-sky-800",
       )}
     >
       {toastState.type === "error" && (
@@ -35,6 +38,9 @@ export default function AlertBox() {
       )}
       {toastState.type === "success" && (
         <CheckCircleIcon size={16} weight="bold" className="min-w-4" />
+      )}
+      {toastState.type === "info" && (
+        <InfoIcon size={16} weight="bold" className="min-w-4" />
       )}
       <p>{toastState.message}</p>
 
