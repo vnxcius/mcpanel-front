@@ -8,6 +8,7 @@ import UploadMods from "./upload-mods";
 import useSound from "use-sound";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
 import { deleteMod } from "@/app/actions";
+import { cn } from "@/lib/utils";
 
 export interface Mod {
   name: string;
@@ -118,7 +119,7 @@ export default function Modlist() {
   };
 
   return (
-    <div className="my-10 w-full">
+    <div className="relative mt-7 flex w-full flex-col md:overflow-y-hidden">
       <div className="flex items-end gap-3">
         <h2 className="text-2xl leading-none text-lime-500">Modlist</h2>
         <p className="text-sm text-neutral-500">{modlist.length} mods</p>
@@ -128,8 +129,8 @@ export default function Modlist() {
       <UploadMods apiUrl={apiUrl} />
       <input
         type="text"
-        placeholder="Procurar mods..."
-        className="mt-4 w-full rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:border-green-500 focus:outline-none"
+        placeholder="Pesquisar mods..."
+        className="w-full rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:border-green-500 focus:outline-none"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
@@ -138,7 +139,12 @@ export default function Modlist() {
         <InfoIcon size={16} />
         <p className="text-sm">Clique em um mod para removê-lo</p>
       </div>
-      <ul className="[&::-webkit-scrollbar-thumb]:bg-accent text-accent my-4 max-h-[425px] list-inside list-decimal overflow-y-scroll [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-neutral-900">
+      <ul
+        className={cn(
+          "text-accent my-4 h-full max-h-[300px] md:max-h-full min-h-[250px] list-inside list-decimal overflow-y-auto",
+          "[&::-webkit-scrollbar-thumb]:bg-accent [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-neutral-900/30",
+        )}
+      >
         {filtered.length ? (
           filtered.map((m) => (
             <li key={m.name}>
@@ -156,8 +162,6 @@ export default function Modlist() {
           </li>
         )}
       </ul>
-
-      <hr className="mt-2.5 border-neutral-800" />
 
       {/* --- Modal ---------------------------------------------------- */}
       {modalOpen && targetMod && (

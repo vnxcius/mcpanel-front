@@ -49,10 +49,9 @@ export default function StartButton({ onStartInitiated }: StartButtonProps) {
       aria-disabled={isPending || serverStatus !== "offline"}
       disabled={isPending || serverStatus !== "offline"}
       onClick={handleStart}
-      className="bg-accent disabled:bg-accent/50 after:bg-accent hover:bg-accent/90 text-accent-foreground before:bg-accent disabled:before:bg-accent/50 relative mx-auto flex w-fit cursor-pointer items-center justify-center gap-1.5 border-2 border-black px-10 pt-2 pb-3 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:brightness-50 hover:translate-y-px hover:after:h-[3px] disabled:text-neutral-400"
+      className="bg-accent disabled:bg-accent/50 after:bg-accent hover:bg-accent/90 text-accent-foreground before:bg-accent disabled:before:bg-accent/50 relative w-fit cursor-pointer px-3 pt-2 pb-3 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:brightness-50 hover:translate-y-px hover:after:h-[3px] disabled:translate-y-px disabled:text-neutral-400"
     >
-      <PlayIcon size={14} weight="fill" />
-      Ligar servidor
+      <PlayIcon size={18} weight="fill" />
     </button>
   );
 }

@@ -55,7 +55,7 @@ export default function ServerInfo() {
     <>
       {(data || isPending) && (
         <>
-          <div className="mt-3.5 mb-3 flex items-start justify-between">
+          <div className="mt-1 flex items-start justify-between">
             <div>
               <p className="text-neutral-500 underline">{data?.host}</p>
               <p className="text-neutral-600">

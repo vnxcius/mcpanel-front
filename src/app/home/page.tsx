@@ -12,24 +12,28 @@ export default async function Home() {
   if (!session) return redirect("/");
 
   return (
-    <div className="font-minecraft mx-auto flex h-screen max-w-[1366px] flex-col gap-16 py-8 md:flex-row md:gap-6">
-      <div className="mx-auto w-full max-w-xl px-4 md:max-w-prose lg:max-w-screen">
-        <div className="flex h-full max-h-full flex-col justify-between gap-1.5 pb-4">
+    <div className="font-minecraft h-svh w-full md:flex md:flex-col md:items-center">
+      <div className="flex h-full w-full max-w-[1366px] flex-col gap-5 p-5 md:flex-row md:flex-wrap">
+        <div className="flex h-full w-full flex-col justify-between gap-1.5 pb-4 md:w-2/3 md:flex-1">
+          <h2 className="text-2xl leading-none text-yellow-400">Latest Logs</h2>
+          <hr className="border-neutral-800" />
           <LatestLog />
-          <div className="mb-3.5 flex w-full flex-1 items-end justify-between">
+          <div className="mb-3.5 flex flex-1 items-end justify-between">
             <ServerStatus />
             <LogoutButton />
           </div>
-          <ButtonGroup />
           <hr className="border-neutral-800" />
         </div>
-      </div>
 
-      <div className="mx-auto w-full max-w-lg px-4 tracking-wide">
-        <h2 className="text-2xl text-green-500">Server Info</h2>
-        <hr className="mt-2.5 border-neutral-800" />
-        <ServerInfo />
-        <Modlist />
+        <div className="h-full min-h-max overflow-hidden tracking-wide md:min-h-[400px] md:w-1/3">
+          <h2 className="text-2xl leading-none text-green-500">Server Info</h2>
+          <hr className="mt-1.5 border-neutral-800" />
+          <div className="flex h-full flex-col pb-12">
+            <ServerInfo />
+            <Modlist />
+            <hr className="mt-2.5 border-neutral-800" />
+          </div>
+        </div>
       </div>
     </div>
   );

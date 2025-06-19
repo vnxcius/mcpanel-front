@@ -61,16 +61,10 @@ export default function ButtonGroup() {
   return (
     <div>
       <LoadingScreen fadeOut={serverStatus !== undefined} />
-      <div className="mx-auto mb-5 flex flex-col gap-y-3.5">
-        {(serverStatus === "offline" || serverStatus === "starting") && (
-          <StartButton onStartInitiated={handleStartInitiated} />
-        )}
-        {serverStatus !== "offline" && serverStatus !== "starting" && (
-          <div className="flex justify-between gap-x-3.5">
-            <RestartButton onRestartInitiated={handleRestartInitiated} />
-            <StopButton onStopInitiated={handleStopInitiated} />
-          </div>
-        )}
+      <div className="flex gap-1.5">
+        <StartButton onStartInitiated={handleStartInitiated} />
+        <RestartButton onRestartInitiated={handleRestartInitiated} />
+        <StopButton onStopInitiated={handleStopInitiated} />
       </div>
     </div>
   );

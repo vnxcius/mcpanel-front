@@ -46,25 +46,16 @@ export default function StopButton({ onStopInitiated }: StopButtonProps) {
   return (
     <button
       type="submit"
-      aria-disabled={
-        isPending ||
-        serverStatus === "stopping" ||
-        serverStatus === "restarting"
-      }
-      disabled={
-        isPending ||
-        serverStatus === "stopping" ||
-        serverStatus === "restarting"
-      }
+      aria-disabled={isPending || serverStatus === "offline"}
+      disabled={isPending || serverStatus !== "online"}
       onClick={handleStop}
-      className="relative flex w-full flex-1 cursor-pointer items-center justify-center gap-1.5 border-2 border-black bg-red-600 pt-2 pb-3 text-neutral-100 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-red-600 before:brightness-150 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:bg-red-500 after:brightness-50 hover:translate-y-px hover:bg-red-500/90 hover:after:h-[3px] disabled:bg-red-500/50 disabled:text-neutral-400 disabled:before:bg-red-600/50"
+      className="relative w-fit cursor-pointer bg-red-600 px-3 pt-2 pb-3 text-neutral-100 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-red-600 before:brightness-150 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:bg-red-500 after:brightness-50 hover:translate-y-px hover:bg-red-500/90 hover:after:h-[3px] disabled:translate-y-px disabled:bg-red-500/50 disabled:text-neutral-400 disabled:before:bg-red-600/50"
     >
       <SquareIcon
-        size={14}
+        size={18}
         weight="fill"
         className={isPending ? "animate-pulse" : ""}
       />
-      Desligar servidor
     </button>
   );
 }

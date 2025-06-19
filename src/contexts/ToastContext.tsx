@@ -5,12 +5,12 @@ import { createContext, useContext, useState } from "react";
 type ToastType = "success" | "error" | "warning" | "info" | undefined;
 export interface ToastState {
   type: ToastType;
-  message: string;
+  message: string | null;
 }
 
 const initialState: ToastState = {
   type: undefined,
-  message: "",
+  message: null,
 };
 
 const ToastContext = createContext<{
