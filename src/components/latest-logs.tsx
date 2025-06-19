@@ -55,11 +55,17 @@ export default function LatestLog() {
         className={cn(
           spaceMono.className,
           "[&::-webkit-scrollbar-thumb]:bg-accent [&::-webkit-scrollbar-track]:transparent [&::-webkit-scrollbar]:h-0 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full",
-          "mt-4 max-h-[300px] min-h-[250px] w-full overflow-y-scroll rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs text-wrap break-words text-white placeholder:text-neutral-500 focus:border-yellow-400 focus:outline-none md:max-h-full",
+          "mt-4 max-h-[300px] min-h-[250px] w-full overflow-y-scroll rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-white placeholder:text-neutral-500 focus:border-yellow-400 focus:outline-none md:max-h-full",
         )}
       >
         {filtered.map((line, i) => (
-          <p key={i} className={colorLine(line)}>
+          <p
+            key={i}
+            className={cn(
+              colorLine(line),
+              "text-xs break-words whitespace-nowrap",
+            )}
+          >
             {line}
           </p>
         ))}

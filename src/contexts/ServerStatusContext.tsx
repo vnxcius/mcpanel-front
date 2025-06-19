@@ -55,13 +55,13 @@ export function ServerStatusProvider({
         case "modlist_update":
           setModlist(msg.payload.mods);
           break;
-        case "log_snapshot": // first 200 lines on connect
+        case "log_snapshot": // first 350 lines on connect
           setLogLines(msg.payload.lines);
           break;
         case "log_append": // one new line
           setLogLines((prev) => {
             const next = [...prev, ...msg.payload.lines];
-            return next.length > 200 ? next.slice(-200) : next;
+            return next.length > 350 ? next.slice(-350) : next;
           });
           break;
       }
