@@ -7,6 +7,7 @@ import {
 } from "@oslojs/encoding";
 import { cache } from "react";
 import { cookies } from "next/headers";
+import { setSessionTokenCookie } from "./cookies";
 
 export function generateSessionToken(): string {
   const bytes = new Uint8Array(32);
@@ -24,7 +25,7 @@ export async function createSession(
     id: sessionId,
     user_id: userId,
     expires_at: new Date(
-      Date.now() + 36000 * 24 * 30, // 30 days
+      Date.now() + 1000 * 60 * 60 * 24 * 90, // 90 days
     ),
   };
 
@@ -56,6 +57,9 @@ export async function validateSessionToken(
       where: { id: session.id },
       data: { expires_at: session.expires_at },
     });
+
+    await setSessionTokenCookie(token, session.expires_at);
+    console.log("User session extended.");
   }
 
   return { session, user };
