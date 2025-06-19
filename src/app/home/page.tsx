@@ -24,7 +24,7 @@ export default async function Home() {
           <hr className="border-neutral-800" />
         </div>
 
-        <div className="h-full min-h-max overflow-hidden tracking-wide md:min-h-[400px] md:w-1/3">
+        <div className="h-full min-h-max overflow-hidden tracking-wide md:min-h-[400px] md:w-1/3 md:flex-1">
           <h2 className="text-2xl leading-none text-green-500">Server Info</h2>
           <hr className="mt-1.5 border-neutral-800" />
           <div className="flex h-full flex-col pb-12">
