@@ -1,4 +1,3 @@
-import ButtonGroup from "@/components/button-group";
 import LatestLog from "@/components/latest-logs";
 import LogoutButton from "@/components/logout-button";
 import Modlist from "@/components/modlist";
