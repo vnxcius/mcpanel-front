@@ -81,6 +81,7 @@ export async function uploadMod(formData: FormData): Promise<ToastState> {
     body: formData,
   });
   if (!res.ok) {
+    console.log(res)
     const data = await res.json();
     return { type: "error", message: data.error };
   }
