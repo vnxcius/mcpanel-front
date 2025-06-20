@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { matchSorter } from "match-sorter";
-import { InfoIcon } from "@phosphor-icons/react";
 import { useToast } from "@/contexts/ToastContext";
 import UploadMods from "./upload-mods";
 import useSound from "use-sound";
