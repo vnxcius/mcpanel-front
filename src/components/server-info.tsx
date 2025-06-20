@@ -47,7 +47,7 @@ export default function ServerInfo() {
 
   if (!data)
     return (
-      <div className="flex h-24 items-center justify-center">
+      <div className="flex items-center justify-center py-5">
         <div className="loader-server-info"></div>
       </div>
     );
@@ -62,7 +62,7 @@ export default function ServerInfo() {
                 {data.version?.name_clean ?? "Desconhecido"}
               </p>
             </div>
-            <div className="flex items-center gap-1 text-blue-600">
+            <div className="flex items-center gap-1 text-sm text-blue-600">
               <ClockIcon size={16} weight="bold" />
               <p>
                 {new Date(data?.retrieved_at || 0).toLocaleTimeString("pt-BR")}
@@ -88,7 +88,7 @@ export default function ServerInfo() {
                 "cursor-pointer text-neutral-500",
               )}
             >
-              <ArrowClockwiseIcon size={24} />
+              <ArrowClockwiseIcon size={18} weight="bold" />
             </button>
           </div>
         </>

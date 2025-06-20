@@ -119,13 +119,12 @@ export default function Modlist() {
   };
 
   return (
-    <div className="relative mt-7 flex w-full flex-col md:overflow-y-hidden">
+    <>
       <div className="flex items-end gap-3">
-        <h2 className="text-2xl leading-none text-lime-500">Modlist</h2>
+        <h2 className="text-xl text-lime-500">Modlist</h2>
         <p className="text-sm text-neutral-500">{modlist.length} mods</p>
       </div>
-      <hr className="mt-2.5 border-neutral-800" />
-
+      <hr className="-mt-1 border-neutral-800" />
       <UploadMods apiUrl={apiUrl} />
       <input
         type="text"
@@ -135,79 +134,81 @@ export default function Modlist() {
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      <div className="mt-2.5 flex items-center gap-1 text-blue-600">
-        <InfoIcon size={16} />
-        <p className="text-sm">Clique em um mod para removê-lo</p>
-      </div>
-      <ul
+      <div
         className={cn(
-          "text-accent my-4 h-full max-h-[300px] md:max-h-full min-h-[250px] list-inside list-decimal overflow-y-auto",
+          "h-full min-h-48 overflow-y-auto rounded-md border border-neutral-800 bg-[#111111] px-3 py-1.5",
           "[&::-webkit-scrollbar-thumb]:bg-accent [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-neutral-900/30",
         )}
       >
-        {filtered.length ? (
-          filtered.map((m) => (
-            <li key={m.name}>
-              <button
-                className="my-1.5 cursor-pointer text-gray-300 duration-200 hover:text-red-500 hover:underline"
-                onClick={() => handleDeleteClick(m)}
-              >
-                {highlight(m.name)}
-              </button>
-            </li>
-          ))
-        ) : (
-          <li className="my-2 text-sm text-neutral-500">
-            Nenhum mod encontrado.
-          </li>
-        )}
-      </ul>
-
-      {/* --- Modal ---------------------------------------------------- */}
-      {modalOpen && targetMod && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
-          onClick={(e) => {
-            // block backdrop click while pending
-            if (!isPending) setModalOpen(false);
-            e.stopPropagation();
-          }}
+        <ul
+          className={cn(
+            "text-accent flex min-h-[250px] list-inside list-decimal flex-col gap-1",
+          )}
         >
-          <div
-            className="w-full max-w-sm border-2 border-neutral-300 bg-neutral-950 p-6 text-center shadow-lg"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="mb-4 text-lg font-semibold text-red-500">
-              Deseja deletar o mod?
-            </h3>
-            <p className="mt-5 mb-14 text-neutral-300">{targetMod.name}</p>
+          {filtered.length ? (
+            filtered.map((m) => (
+              <li key={m.name}>
+                <button
+                  className="cursor-pointer text-sm text-gray-300 duration-200 hover:text-red-500 hover:underline"
+                  onClick={() => handleDeleteClick(m)}
+                >
+                  {highlight(m.name)}
+                </button>
+              </li>
+            ))
+          ) : (
+            <li className="my-2 text-sm text-neutral-500">
+              Nenhum mod encontrado.
+            </li>
+          )}
+        </ul>
 
-            {isPending ? (
-              <button
-                disabled
-                className="relative flex w-full flex-1 cursor-pointer items-center justify-center gap-1.5 border-2 border-black bg-red-600 pt-2 pb-3 text-neutral-100 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-red-600 before:brightness-150 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:bg-red-500 after:brightness-50 hover:translate-y-px hover:bg-red-500/90 hover:after:h-[3px] disabled:bg-red-500/50 disabled:text-neutral-400 disabled:before:bg-red-600/50"
-              >
-                Deletando…
-              </button>
-            ) : (
-              <div className="flex gap-3">
+        {/* --- Modal ---------------------------------------------------- */}
+        {modalOpen && targetMod && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+            onClick={(e) => {
+              // block backdrop click while pending
+              if (!isPending) setModalOpen(false);
+              e.stopPropagation();
+            }}
+          >
+            <div
+              className="w-full max-w-sm border-2 border-neutral-300 bg-neutral-950 p-6 text-center shadow-lg"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="mb-4 text-lg font-semibold text-red-500">
+                Deseja deletar o mod?
+              </h3>
+              <p className="mt-5 mb-14 text-neutral-300">{targetMod.name}</p>
+
+              {isPending ? (
                 <button
+                  disabled
                   className="relative flex w-full flex-1 cursor-pointer items-center justify-center gap-1.5 border-2 border-black bg-red-600 pt-2 pb-3 text-neutral-100 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-red-600 before:brightness-150 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:bg-red-500 after:brightness-50 hover:translate-y-px hover:bg-red-500/90 hover:after:h-[3px] disabled:bg-red-500/50 disabled:text-neutral-400 disabled:before:bg-red-600/50"
-                  onClick={confirmDelete}
                 >
-                  Sim
+                  Deletando…
                 </button>
-                <button
-                  className="after:bg-button-shadow relative ml-auto block w-fit flex-1 cursor-pointer border-2 border-black bg-neutral-300 px-2 pt-2 pb-3 text-center text-neutral-800 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-neutral-300 before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full hover:translate-y-px hover:bg-neutral-300/90 hover:after:h-[3px] disabled:bg-neutral-500 disabled:before:bg-neutral-300/50"
-                  onClick={() => setModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-              </div>
-            )}
+              ) : (
+                <div className="flex gap-3">
+                  <button
+                    className="relative flex w-full flex-1 cursor-pointer items-center justify-center gap-1.5 border-2 border-black bg-red-600 pt-2 pb-3 text-neutral-100 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-red-600 before:brightness-150 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:bg-red-500 after:brightness-50 hover:translate-y-px hover:bg-red-500/90 hover:after:h-[3px] disabled:bg-red-500/50 disabled:text-neutral-400 disabled:before:bg-red-600/50"
+                    onClick={confirmDelete}
+                  >
+                    Sim
+                  </button>
+                  <button
+                    className="after:bg-button-shadow relative ml-auto block w-fit flex-1 cursor-pointer border-2 border-black bg-neutral-300 px-2 pt-2 pb-3 text-center text-neutral-800 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-neutral-300 before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full hover:translate-y-px hover:bg-neutral-300/90 hover:after:h-[3px] disabled:bg-neutral-500 disabled:before:bg-neutral-300/50"
+                    onClick={() => setModalOpen(false)}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }

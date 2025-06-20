@@ -28,6 +28,10 @@ export default function ButtonGroup() {
         message: "Servidor iniciado com sucesso!",
       });
       setIsAwaitingStartResult(false);
+    } else if (isAwaitingStartResult && serverStatus === "offline") {
+      // e.g., start failed?
+      setToastState({ type: "error", message: "Falha ao iniciar o servidor" });
+      setIsAwaitingStartResult(false);
     }
 
     // Handle Stop result
@@ -39,7 +43,7 @@ export default function ButtonGroup() {
       setIsAwaitingStopResult(false);
     } else if (isAwaitingStopResult && serverStatus === "online") {
       // e.g., stop failed?
-      setToastState({ type: "error", message: "Falha ao parar o servidor." });
+      setToastState({ type: "error", message: "Falha ao parar o servidor" });
       setIsAwaitingStopResult(false);
     }
 
@@ -48,6 +52,13 @@ export default function ButtonGroup() {
       setToastState({
         type: "success",
         message: "Servidor reiniciado com sucesso!",
+      });
+      setIsAwaitingRestartResult(false);
+    } else if (isAwaitingRestartResult && serverStatus === "offline") {
+      // e.g., restart failed?
+      setToastState({
+        type: "error",
+        message: "Falha ao reiniciar o servidor",
       });
       setIsAwaitingRestartResult(false);
     }

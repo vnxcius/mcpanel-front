@@ -76,29 +76,27 @@ export default function UploadMods({ apiUrl }: { apiUrl: string }) {
   };
 
   return (
-    <div className="my-2.5">
-      <div
-        onClick={() => inputRef.current?.click()}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragOver(true);
-        }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={handleDrop}
-        className={`block cursor-pointer rounded-md border border-dashed p-4 text-center transition-colors ${dragOver ? "border-green-500 bg-neutral-800 text-green-400" : "border-neutral-700 text-neutral-400 hover:border-green-500 hover:text-green-400"}`}
-      >
-        {busy ? "Uploading…" : "Clique ou arraste arquivos .JAR"}
-        <input
-          ref={inputRef}
-          type="file"
-          name="files"
-          accept=".jar"
-          multiple
-          className="hidden"
-          onChange={handleSelect}
-          disabled={busy}
-        />
-      </div>
+    <div
+      onClick={() => inputRef.current?.click()}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragOver(true);
+      }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={handleDrop}
+      className={`block cursor-pointer rounded-md border border-dashed px-4 py-2.5 text-center transition-colors ${dragOver ? "border-green-500 bg-neutral-800 text-green-400" : "border-neutral-700 text-neutral-400 hover:border-green-500 hover:text-green-400"}`}
+    >
+      {busy ? "Uploading…" : "Clique ou arraste arquivos .JAR"}
+      <input
+        ref={inputRef}
+        type="file"
+        name="files"
+        accept=".jar"
+        multiple
+        className="hidden"
+        onChange={handleSelect}
+        disabled={busy}
+      />
     </div>
   );
 }
