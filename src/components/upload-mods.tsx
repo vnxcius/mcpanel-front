@@ -69,11 +69,15 @@ export default function UploadMods() {
       );
 
       if (!res.ok) {
+        interface Skipped {
+          file: string;
+          reason: string;
+        }
         const data = await res.json();
         const skipped = data?.skipped ?? [];
 
         const reason =
-          skipped.find((s: any) => s.file === uiFile.file.name)?.reason ??
+          skipped.find((s: Skipped) => s.file === uiFile.file.name)?.reason ??
           "Erro desconhecido";
 
         setFiles((prev) =>
