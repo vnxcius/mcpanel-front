@@ -61,7 +61,24 @@ export default function ServerInfo() {
     );
   return (
     <>
-      {(data || isPending) && (
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl leading-none text-green-500">Server Info</h2>
+        <button
+          type="button"
+          onClick={fetchServerInfo}
+          disabled={isPending}
+          aria-disabled={isPending}
+          title="Atualizar informações"
+          className={cn(
+            isPending && "animate-spin",
+            "cursor-pointer text-neutral-500",
+          )}
+        >
+          <ArrowClockwiseIcon size={18} weight="bold" />
+        </button>
+      </div>
+      <hr className="mt-1.5 border-neutral-800" />
+      {data.version || isPending ? (
         <>
           <div className="mt-1 flex items-start justify-between">
             <div>
@@ -79,27 +96,20 @@ export default function ServerInfo() {
           </div>
 
           <div className="flex items-center justify-between">
-            <p className="text-neutral-500">
+            <p
+              className="text-neutral-500"
+              title={data?.players?.list?.join(", ")}
+            >
               Online:{" "}
               <span className="text-green-500">{data.players?.online}</span>
               <span className="text-neutral-400"> / {data.players?.max}</span>
             </p>
-
-            <button
-              type="button"
-              onClick={fetchServerInfo}
-              disabled={isPending}
-              aria-disabled={isPending}
-              title="Atualizar informações"
-              className={cn(
-                isPending && "animate-spin",
-                "cursor-pointer text-neutral-500",
-              )}
-            >
-              <ArrowClockwiseIcon size={18} weight="bold" />
-            </button>
           </div>
         </>
+      ) : (
+        <div className="py-5 text-center text-neutral-500">
+          Servidor offline
+        </div>
       )}
     </>
   );

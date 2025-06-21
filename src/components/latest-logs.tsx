@@ -97,7 +97,7 @@ export default function LatestLog() {
                 click();
               }}
               className={cn(
-                "hover:text-neutral-400",
+                filterLevel !== "error" && "hover:text-neutral-400",
                 filterLevel === "error" && "text-red-500",
               )}
             >
@@ -110,7 +110,7 @@ export default function LatestLog() {
                 click();
               }}
               className={cn(
-                "hover:text-neutral-400",
+                filterLevel !== "warn" && "hover:text-neutral-400",
                 filterLevel === "warn" && "text-yellow-500",
               )}
             >
@@ -123,7 +123,7 @@ export default function LatestLog() {
                 click();
               }}
               className={cn(
-                "hover:text-neutral-400",
+                filterLevel !== "info" && "hover:text-neutral-400",
                 filterLevel === "info" && "text-emerald-300",
               )}
             >

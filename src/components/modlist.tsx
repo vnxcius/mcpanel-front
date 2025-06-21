@@ -24,6 +24,7 @@ export default function Modlist() {
   const [targetMod, setTargetMod] = useState<Mod | null>(null);
 
   const [isPending, startTransition] = useTransition();
+  const [click] = useSound("/sounds/click.mp3", { volume: 0.1 });
   const [successful_hit] = useSound("/sounds/successful_hit.ogg", {
     volume: 0.1,
   });
@@ -161,12 +162,10 @@ export default function Modlist() {
             }}
           >
             <div
-              className="w-full max-w-sm border-2 border-neutral-300 bg-neutral-950 p-6 text-center shadow-lg"
+              className="w-full max-w-sm rounded-md border border-neutral-800 bg-neutral-950 p-6 text-center shadow-lg"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="mb-4 text-lg font-semibold text-red-500">
-                Deseja deletar o mod?
-              </h3>
+              <h3 className="mb-4 text-lg text-red-500">Deletar o mod:</h3>
               <p className="mt-5 mb-14 text-neutral-300">{targetMod.name}</p>
 
               {isPending ? (
@@ -179,14 +178,17 @@ export default function Modlist() {
               ) : (
                 <div className="flex gap-3">
                   <button
-                    className="relative flex w-full flex-1 cursor-pointer items-center justify-center gap-1.5 border-2 border-black bg-red-600 pt-2 pb-3 text-neutral-100 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-red-600 before:brightness-150 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:bg-red-500 after:brightness-50 hover:translate-y-px hover:bg-red-500/90 hover:after:h-[3px] disabled:bg-red-500/50 disabled:text-neutral-400 disabled:before:bg-red-600/50"
+                    className="relative flex w-full flex-1 cursor-pointer items-center justify-center gap-1.5 bg-red-600 pt-2 pb-3 text-neutral-100 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-red-500/80 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:bg-red-500 after:brightness-50 hover:translate-y-px hover:bg-red-500/90 hover:after:h-[3px] disabled:bg-red-500/50 disabled:text-neutral-400 disabled:before:bg-red-600/50"
                     onClick={confirmDelete}
                   >
                     Sim
                   </button>
                   <button
-                    className="after:bg-button-shadow relative ml-auto block w-fit flex-1 cursor-pointer border-2 border-black bg-neutral-300 px-2 pt-2 pb-3 text-center text-neutral-800 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-neutral-300 before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full hover:translate-y-px hover:bg-neutral-300/90 hover:after:h-[3px] disabled:bg-neutral-500 disabled:before:bg-neutral-300/50"
-                    onClick={() => setModalOpen(false)}
+                    className="after:bg-button-shadow relative ml-auto block w-fit flex-1 cursor-pointer bg-neutral-300 px-2 pt-2 pb-3 text-center text-neutral-800 transition-colors before:absolute before:top-0 before:left-0 before:h-0.5 before:w-full before:bg-neutral-300 before:brightness-125 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full hover:translate-y-px hover:bg-neutral-300/90 hover:after:h-[3px] disabled:bg-neutral-500 disabled:before:bg-neutral-300/50"
+                    onClick={() => {
+                      click();
+                      setModalOpen(false);
+                    }}
                   >
                     Cancelar
                   </button>
