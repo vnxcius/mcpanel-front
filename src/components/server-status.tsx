@@ -3,7 +3,7 @@
 import { useServerStatus } from "@/providers/StatusProvider";
 import { cn } from "@/lib/utils";
 
-export default function status() {
+export default function ServerStatus() {
   const { status } = useServerStatus();
 
   return (

@@ -3,10 +3,11 @@
 import { createContext, useContext, useEffect, useRef } from "react";
 import { useToast } from "@/contexts/ToastContext";
 import { ServerStatus, useServerStatus } from "./StatusProvider";
+import { ModlistJSON } from "@/components/modlist";
 
 type WSMsg =
   | { type: "status_update"; payload: { status: ServerStatus } }
-  | { type: "modlist_update"; payload: { mods: any[] } }
+  | { type: "modlist_update"; payload: { mods: ModlistJSON[] } }
   | { type: "log_snapshot"; payload: { lines: string[] } }
   | { type: "log_append"; payload: { lines: string[] } };
 
@@ -28,8 +29,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const listeners = useRef(new Set<(m: WSMsg) => void>());
   const wsRef = useRef<WebSocket | null>(null);
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  let retrying = false;
+  const retrying = useRef(false);
 
   const broadcast = (m: WSMsg) => listeners.current.forEach((l) => l(m));
 
@@ -50,8 +50,8 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 
       wsRef.current.onopen = () => {
         console.log("WebSocket connection established.");
-        if (retrying) {
-          retrying = false;
+        if (retrying.current === true) {
+          retrying.current = false;
           setToastState({
             type: "success",
             message: "Conexão reestabelecida.",
@@ -79,7 +79,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       };
 
       wsRef.current.onclose = (e) => {
-        retrying = true;
+        retrying.current = true;
         console.warn("WebSocket closed. Reconnecting in 5s...", e.reason);
         setToastState({
           type: "error",
