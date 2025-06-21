@@ -6,7 +6,7 @@ import { SignOutIcon } from "@phosphor-icons/react";
 
 const geist = Geist({ subsets: ["latin"], display: "swap", weight: "400" });
 
-export default function LogoutButton() {
+export default function ButtonLogout() {
   return (
     <button
       onClick={() => (window.location.href = "/api/auth/sign-out")}

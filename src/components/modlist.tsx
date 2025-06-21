@@ -5,10 +5,10 @@ import { matchSorter } from "match-sorter";
 import { useToast } from "@/contexts/ToastContext";
 import UploadMods from "./upload-mods";
 import useSound from "use-sound";
-import { useServerStatus } from "@/contexts/ServerStatusContext";
 import { deleteMod } from "@/app/actions";
 import { cn } from "@/lib/utils";
 import ModListItems from "./modlist-items";
+import { useModlist } from "@/providers/ModlistProvider";
 
 export interface Mod {
   name: string;
@@ -18,7 +18,7 @@ export interface ModlistJSON {
 }
 
 export default function Modlist() {
-  const { modlist } = useServerStatus();
+  const modlist = useModlist();
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [targetMod, setTargetMod] = useState<Mod | null>(null);

@@ -14,7 +14,7 @@ interface LogLinesProps {
   isLoading: boolean;
 }
 
-const LogLines = forwardRef<HTMLDivElement, LogLinesProps>(
+const LatestLogsLines = forwardRef<HTMLDivElement, LogLinesProps>(
   ({ logs, filtered, colorLine, isLoading }, ref) => {
     if (!logs || isLoading) {
       return (
@@ -58,5 +58,5 @@ const LogLines = forwardRef<HTMLDivElement, LogLinesProps>(
   },
 );
 
-LogLines.displayName = "LogLines";
-export default LogLines;
+LatestLogsLines.displayName = "LatestLogLines";
+export default LatestLogsLines;

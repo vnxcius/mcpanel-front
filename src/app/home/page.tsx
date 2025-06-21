@@ -1,5 +1,5 @@
 import LatestLog from "@/components/latest-logs";
-import LogoutButton from "@/components/logout-button";
+import ButtonLogout from "@/components/button-logout";
 import Modlist from "@/components/modlist";
 import ServerInfo from "@/components/server-info";
 import ServerStatus from "@/components/server-status";
@@ -19,7 +19,7 @@ export default async function Home() {
           <LatestLog />
           <div className="mb-3.5 flex flex-1 items-end justify-between">
             <ServerStatus />
-            <LogoutButton />
+            <ButtonLogout />
           </div>
           <hr className="border-neutral-800" />
         </div>

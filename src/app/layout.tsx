@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ToastProvider } from "@/contexts/ToastContext";
-import { ServerStatusProvider } from "@/contexts/ServerStatusContext";
 import SessionProvider from "@/contexts/SessionContext";
+import { ServerProviders } from "@/providers";
 
 export const metadata: Metadata = {
   title: "Painel | ronaldo.vncius.dev",
@@ -19,7 +19,7 @@ export default function RootLayout({
       <body>
         <SessionProvider>
           <ToastProvider>
-            <ServerStatusProvider>{children}</ServerStatusProvider>
+            <ServerProviders>{children}</ServerProviders>
           </ToastProvider>
         </SessionProvider>
       </body>

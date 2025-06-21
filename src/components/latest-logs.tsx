@@ -1,14 +1,14 @@
 "use client";
 
-import { useServerStatus } from "@/contexts/ServerStatusContext";
 import { cn } from "@/lib/utils";
 import { CaretDownIcon, FunnelIcon } from "@phosphor-icons/react";
-import { Geist, Space_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import AlertBox from "./alert-box";
 import ButtonGroup from "./button-group";
 import useSound from "use-sound";
-import LogLines from "./logs-lines";
+import LatestLogsLines from "./latest-logs-lines";
+import { useLogLines } from "@/providers/LogProvider";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -23,7 +23,7 @@ export default function LatestLog() {
   >(null);
   const [click] = useSound("/sounds/click.mp3", { volume: 0.1 });
   const logRef = useRef<HTMLDivElement>(null);
-  const { logLines } = useServerStatus();
+  const logLines = useLogLines();
 
   const normalize = (txt: string) => txt.toLowerCase().replace(/\s+/g, "");
   const filtered = useMemo(() => {
@@ -136,7 +136,7 @@ export default function LatestLog() {
       </div>
 
       {/* --- Logs --------------------------------------------------------- */}
-      <LogLines
+      <LatestLogsLines
         ref={logRef}
         logs={filtered}
         colorLine={colorLine}
