@@ -119,10 +119,7 @@ export default function Modlist() {
 
   return (
     <>
-      <div className="flex items-end gap-3">
-        <h2 className="text-xl text-lime-500">Modlist</h2>
-        <p className="text-sm text-neutral-500">{modlist.length} mods</p>
-      </div>
+      <h2 className="text-accent text-xl">Modlist</h2>
       <hr className="-mt-1 border-neutral-800" />
       <UploadMods apiUrl={apiUrl} />
       <input
@@ -139,6 +136,7 @@ export default function Modlist() {
           "[&::-webkit-scrollbar-thumb]:bg-accent [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-neutral-900/30",
         )}
       >
+        <p className="text-sm text-neutral-500 mx-auto w-fit mb-1.5">{modlist.length} mods</p>
         <ul
           className={cn(
             "text-accent flex min-h-[250px] list-inside list-decimal flex-col gap-1",
