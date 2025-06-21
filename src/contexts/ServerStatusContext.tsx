@@ -39,14 +39,18 @@ export function ServerStatusProvider({
   const webSocketRef = useRef<WebSocket | null>(null);
   const { setToastState } = useToast();
 
-  useEffect(() => {
-    const serverUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (!serverUrl) return console.error("NEXT_PUBLIC_API_URL not found.");
+  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  let retrying = false;
 
-    webSocketRef.current = new WebSocket(serverUrl + "/api/v2/ws");
+  const clamp350 = (lines: string[]) =>
+    lines.length > 350 ? lines.slice(-350) : lines;
 
-    webSocketRef.current.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
+  const mergeNewLines = (prev: string[], incoming: string[]) =>
+    clamp350([...prev, ...incoming]);
+
+  const handleWebSocketMessage = ({ data }: { data: string }) => {
+    try {
+      const msg = JSON.parse(data);
 
       switch (msg.type) {
         case "status_update":
@@ -55,35 +59,82 @@ export function ServerStatusProvider({
         case "modlist_update":
           setModlist(msg.payload.mods);
           break;
-        case "log_snapshot": // first 350 lines on connect
-          setLogLines(msg.payload.lines);
+
+        case "log_snapshot":
+          setLogLines(clamp350(msg.payload.lines));
           break;
-        case "log_append": // one new line
-          setLogLines((prev) => {
-            const next = [...prev, ...msg.payload.lines];
-            return next.length > 350 ? next.slice(-350) : next;
-          });
+
+        case "log_append":
+          setLogLines((prev) => mergeNewLines(prev, msg.payload.lines));
           break;
       }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    const serverUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!serverUrl) {
+      console.error("NEXT_PUBLIC_API_URL not found.");
+      return;
+    }
+
+    const connect = () => {
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
+
+      const ws = new WebSocket(serverUrl + "/api/v2/ws");
+      webSocketRef.current = ws;
+
+      ws.onopen = () => {
+        console.log("WebSocket connection established.");
+        if (retrying) {
+          retrying = false;
+          setToastState({
+            type: "success",
+            message: "Conexão reestabelecida.",
+          });
+        }
+      };
+
+      ws.onmessage = handleWebSocketMessage;
+
+      const scheduleReconnect = () => {
+        if (!retryTimeoutRef.current) {
+          retryTimeoutRef.current = setTimeout(connect, 5000);
+        }
+      };
+
+      ws.onerror = (e) => {
+        setServerStatus("error");
+        setToastState({
+          type: "error",
+          message: "Conexão com API foi perdida. Tentando reconectar...",
+        });
+        ws.close();
+      };
+
+      ws.onclose = (e) => {
+        retrying = true;
+        console.warn("WebSocket closed. Reconnecting in 5s...", e.reason);
+        setToastState({
+          type: "error",
+          message: "Conexão com API foi perdida. Tentando reconectar...",
+        });
+        scheduleReconnect();
+      };
     };
 
-    webSocketRef.current.onerror = (error) => {
-      console.error("WebSocket failed:", error);
-      webSocketRef.current?.close();
-      setServerStatus("error");
-      setToastState({
-        type: "error",
-        message:
-          "Conexão com API foi perdida. Atualize a página ou tente novamente.",
-      });
-    };
-
-    webSocketRef.current.onopen = () => {
-      console.log("WebSocket connection established.");
-    };
+    connect();
 
     return () => {
-      console.log("Closing WebSocket connection.");
+      console.log("Cleaning up WebSocket and timeout.");
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+      }
       webSocketRef.current?.close();
     };
   }, []);
