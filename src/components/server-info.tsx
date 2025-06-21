@@ -1,7 +1,11 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ArrowClockwiseIcon, ClockIcon } from "@phosphor-icons/react";
+import {
+  ArrowClockwiseIcon,
+  ClockIcon,
+  SpinnerGapIcon,
+} from "@phosphor-icons/react";
 import { useEffect, useState, useTransition } from "react";
 
 interface ServerInfo {
@@ -47,8 +51,12 @@ export default function ServerInfo() {
 
   if (!data)
     return (
-      <div className="flex items-center justify-center py-5">
-        <div className="loader-server-info"></div>
+      <div className="py-5">
+        <SpinnerGapIcon
+          size={32}
+          weight="bold"
+          className="text-accent mx-auto animate-spin"
+        />
       </div>
     );
   return (

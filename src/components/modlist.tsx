@@ -8,6 +8,7 @@ import useSound from "use-sound";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
 import { deleteMod } from "@/app/actions";
 import { cn } from "@/lib/utils";
+import ModListItems from "./modlist-items";
 
 export interface Mod {
   name: string;
@@ -21,6 +22,7 @@ export default function Modlist() {
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [targetMod, setTargetMod] = useState<Mod | null>(null);
+
   const [isPending, startTransition] = useTransition();
   const [successful_hit] = useSound("/sounds/successful_hit.ogg", {
     volume: 0.1,
@@ -120,43 +122,32 @@ export default function Modlist() {
       <hr className="-mt-1 border-neutral-800" />
       <UploadMods />
       <input
+        id="search"
+        name="search"
         type="text"
         placeholder="Pesquisar mods..."
         className="w-full rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:border-green-500 focus:outline-none"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
+        autoComplete="off"
       />
 
       <div
         className={cn(
-          "h-full min-h-48 overflow-y-auto rounded-md border border-neutral-800 bg-[#111111] px-3 py-1.5",
+          "max-h-96 min-h-48 overflow-y-auto rounded-md border border-neutral-800 bg-[#111111] px-3 py-1.5 md:h-full md:max-h-full",
           "[&::-webkit-scrollbar-thumb]:bg-accent [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-neutral-900/30",
         )}
       >
         <p className="mx-auto mb-1.5 w-fit text-sm text-neutral-500">
           {modlist.length} mods
         </p>
-        <ul
-          className={cn(
-            "text-accent flex min-h-[250px] list-inside list-decimal flex-col gap-1",
-          )}
-        >
-          {filtered.length ? (
-            filtered.map((m) => (
-              <li key={m.name}>
-                <button
-                  className="cursor-pointer text-sm text-gray-300 duration-200 hover:text-red-500 hover:underline"
-                  onClick={() => handleDeleteClick(m)}
-                >
-                  {highlight(m.name)}
-                </button>
-              </li>
-            ))
-          ) : (
-            <li className="my-2 text-sm text-neutral-500">
-              Nenhum mod encontrado.
-            </li>
-          )}
+        <ul className={cn("flex flex-col items-start gap-1")}>
+          <ModListItems
+            modlist={modlist}
+            filtered={filtered}
+            highlight={highlight}
+            handleDeleteClick={handleDeleteClick}
+          />
         </ul>
 
         {/* --- Modal ---------------------------------------------------- */}

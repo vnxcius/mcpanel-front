@@ -142,12 +142,12 @@ export default function UploadMods() {
       <div className="grid grid-cols-2 place-items-stretch gap-2">
         <button
           onClick={openModal}
-          className="flex items-center justify-center-safe gap-1 rounded-md border border-neutral-800 bg-neutral-900 px-2 py-1 text-gray-300 hover:border-green-500 hover:bg-neutral-800"
+          className="flex items-center justify-center-safe gap-1 rounded-md border border-neutral-800 bg-neutral-900 px-2 py-1 text-gray-300 hover:border-green-500 hover:bg-neutral-800 hover:text-green-500"
         >
           <UploadIcon size={18} weight="bold" className="min-w-5" />
           <p className={`text-sm ${geist.className}`}>Upload mods</p>
         </button>
-        <button className="flex items-center justify-center-safe gap-1 rounded-md border border-neutral-800 bg-neutral-900 px-2 py-1 text-gray-300 hover:border-green-500 hover:bg-neutral-800">
+        <button className="flex items-center justify-center-safe gap-1 rounded-md border border-neutral-800 bg-neutral-900 px-2 py-1 text-gray-300 hover:border-green-500 hover:bg-neutral-800 hover:text-green-500">
           <FileTextIcon size={18} weight="bold" className="min-w-5" />
           <p className={`text-sm ${geist.className}`}>Changelog</p>
         </button>
@@ -176,15 +176,15 @@ export default function UploadMods() {
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
           >
-            <p className="mb-1.5 text-sm text-neutral-500">Max. 50mb</p>
+            <p className="mb-1.5 text-sm text-green-500">Máx. 100MB</p>
 
             <div
               onClick={() => inputRef.current?.click()}
               className={cn(
-                "mx-auto flex max-w-sm cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed px-4 py-5 text-center transition-colors",
+                "mx-auto flex max-w-sm cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed px-4 py-5 text-center transition-colors",
                 dragOver
                   ? "border-green-500 bg-neutral-800 text-green-400 brightness-100"
-                  : "border-neutral-700 text-neutral-400 hover:border-green-500 hover:text-green-400",
+                  : "border-neutral-700 text-neutral-500 hover:border-green-500 hover:text-green-400",
               )}
             >
               <UploadIcon size={18} weight="bold" className="min-w-5" />

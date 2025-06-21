@@ -6,7 +6,6 @@ import StopButton from "@/components/stop-button";
 import { useServerStatus } from "@/contexts/ServerStatusContext";
 import { useEffect, useState } from "react";
 import { useToast } from "@/contexts/ToastContext";
-import LoadingScreen from "./loading-screen";
 
 export default function ButtonGroup() {
   const { serverStatus } = useServerStatus();
@@ -70,13 +69,10 @@ export default function ButtonGroup() {
     setToastState,
   ]);
   return (
-    <div>
-      <LoadingScreen fadeOut={serverStatus !== undefined} />
-      <div className="flex gap-1.5">
-        <StartButton onStartInitiated={handleStartInitiated} />
-        <RestartButton onRestartInitiated={handleRestartInitiated} />
-        <StopButton onStopInitiated={handleStopInitiated} />
-      </div>
+    <div className="z-20 flex gap-1.5 max-sm:fixed max-sm:bottom-2 max-sm:left-1/2 max-sm:-translate-x-1/2 max-sm:bg-neutral-900">
+      <StartButton onStartInitiated={handleStartInitiated} />
+      <RestartButton onRestartInitiated={handleRestartInitiated} />
+      <StopButton onStopInitiated={handleStopInitiated} />
     </div>
   );
 }

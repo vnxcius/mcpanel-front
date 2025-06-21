@@ -2,28 +2,51 @@
 
 import { useServerStatus } from "@/contexts/ServerStatusContext";
 import { cn } from "@/lib/utils";
-import { CaretDownIcon } from "@phosphor-icons/react";
-import { Space_Mono } from "next/font/google";
-import { useLayoutEffect, useRef, useState } from "react";
+import { CaretDownIcon, FunnelIcon } from "@phosphor-icons/react";
+import { Geist, Space_Mono } from "next/font/google";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import AlertBox from "./alert-box";
 import ButtonGroup from "./button-group";
 import useSound from "use-sound";
+import LogLines from "./logs-lines";
 
-const spaceMono = Space_Mono({ weight: "400", subsets: ["latin"] });
+const geist = Geist({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500"],
+});
 
 export default function LatestLog() {
   const [search, setSearch] = useState("");
+  const [filterLevel, setFilterLevel] = useState<
+    "error" | "warn" | "info" | null
+  >(null);
   const [click] = useSound("/sounds/click.mp3", { volume: 0.1 });
   const logRef = useRef<HTMLDivElement>(null);
   const { logLines } = useServerStatus();
 
   const normalize = (txt: string) => txt.toLowerCase().replace(/\s+/g, "");
-  const filtered = search
-    ? logLines.filter((line) => normalize(line).includes(normalize(search)))
-    : logLines;
+  const filtered = useMemo(() => {
+    let result = logLines;
+    if (filterLevel === "error")
+      result = result.filter((line) => /\b(error|severe)\b/i.test(line));
+    if (filterLevel === "warn")
+      result = result.filter((line) => /\bwarn(ing)?\b/i.test(line));
+    if (filterLevel === "info")
+      result = result.filter(
+        (line) => !/\b(error|severe|warn(ing)?)\b/i.test(line),
+      );
+    if (search)
+      result = result.filter((line) =>
+        normalize(line).includes(normalize(search)),
+      );
+    return result;
+  }, [logLines, search, filterLevel]);
 
   useLayoutEffect(() => {
-    logRef.current!.scrollTop = logRef.current!.scrollHeight; // auto‑scroll
+    if (logRef.current) {
+      logRef.current.scrollTop = logRef.current.scrollHeight;
+    }
   }, [filtered]);
 
   const colorLine = (line: string) => {
@@ -38,38 +61,89 @@ export default function LatestLog() {
 
   return (
     <>
-      <div className="flex items-end justify-between gap-3">
-        <input
-          type="text"
-          placeholder="Pesquisar logs..."
-          className="mt-1 w-full max-w-sm rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:border-yellow-400 focus:outline-none"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="flex justify-between gap-3 max-sm:flex-col-reverse md:items-end">
+        <div className="flex w-full max-w-fit items-stretch gap-2">
+          <input
+            name="search"
+            id="search"
+            type="text"
+            placeholder="Pesquisar logs..."
+            className="w-full max-w-xs rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:border-yellow-400 focus:outline-none"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            autoComplete="off"
+          />
+
+          {/* --- Filters -------------------------------------------------- */}
+          <div className="group flex items-center space-x-1.5 text-neutral-500">
+            <FunnelIcon
+              size={20}
+              weight="bold"
+              onClick={() => {
+                setFilterLevel(null);
+                click();
+              }}
+              className={cn(
+                "size-5 h-5 min-w-8 cursor-pointer border-r border-neutral-700 px-1",
+                filterLevel === "error" && "text-red-500",
+                filterLevel === "warn" && "text-yellow-500",
+                filterLevel === "info" && "text-emerald-300",
+              )}
+            />
+            <button
+              onClick={() => {
+                if (filterLevel === "error") return setFilterLevel(null);
+                setFilterLevel("error");
+                click();
+              }}
+              className={cn(
+                "hover:text-neutral-400",
+                filterLevel === "error" && "text-red-500",
+              )}
+            >
+              <p className={`text-sm font-medium ${geist.className}`}>Error</p>
+            </button>
+            <button
+              onClick={() => {
+                if (filterLevel === "warn") return setFilterLevel(null);
+                setFilterLevel("warn");
+                click();
+              }}
+              className={cn(
+                "hover:text-neutral-400",
+                filterLevel === "warn" && "text-yellow-500",
+              )}
+            >
+              <p className={`text-sm font-medium ${geist.className}`}>Warn</p>
+            </button>
+            <button
+              onClick={() => {
+                if (filterLevel === "info") return setFilterLevel(null);
+                setFilterLevel("info");
+                click();
+              }}
+              className={cn(
+                "hover:text-neutral-400",
+                filterLevel === "info" && "text-emerald-300",
+              )}
+            >
+              <p className={`text-sm font-medium ${geist.className}`}>Info</p>
+            </button>
+          </div>
+        </div>
 
         <ButtonGroup />
       </div>
 
-      <div
+      {/* --- Logs --------------------------------------------------------- */}
+      <LogLines
         ref={logRef}
-        className={cn(
-          spaceMono.className,
-          "[&::-webkit-scrollbar-thumb]:bg-accent [&::-webkit-scrollbar-track]:transparent [&::-webkit-scrollbar]:h-0 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full",
-          "mt-4 max-h-[300px] min-h-[250px] w-full overflow-y-scroll rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-white placeholder:text-neutral-500 focus:border-yellow-400 focus:outline-none md:max-h-full",
-        )}
-      >
-        {filtered.map((line, i) => (
-          <p
-            key={i}
-            className={cn(
-              colorLine(line),
-              "text-xs break-words whitespace-nowrap",
-            )}
-          >
-            {line}
-          </p>
-        ))}
-      </div>
+        logs={filtered}
+        colorLine={colorLine}
+        filtered={filtered}
+        isLoading={logLines.length <= 0}
+      />
+
       <div className="mt-2 flex items-start justify-between">
         <AlertBox />
         <button
