@@ -25,13 +25,12 @@ export default async function Home() {
         </div>
 
         <div className="flex h-full w-full max-w-sm flex-col gap-2 tracking-wide md:flex-1">
+          <Modlist />
           <div className="rounded-md border border-neutral-800 bg-[#111111] p-3">
             <h2 className="text-xl leading-none text-green-500">Server Info</h2>
             <hr className="mt-1.5 border-neutral-800" />
             <ServerInfo />
           </div>
-
-          <Modlist />
         </div>
       </div>
     </div>

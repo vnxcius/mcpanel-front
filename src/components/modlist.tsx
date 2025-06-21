@@ -136,7 +136,9 @@ export default function Modlist() {
           "[&::-webkit-scrollbar-thumb]:bg-accent [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-neutral-900/30",
         )}
       >
-        <p className="text-sm text-neutral-500 mx-auto w-fit mb-1.5">{modlist.length} mods</p>
+        <p className="mx-auto mb-1.5 w-fit text-sm text-neutral-500">
+          {modlist.length} mods
+        </p>
         <ul
           className={cn(
             "text-accent flex min-h-[250px] list-inside list-decimal flex-col gap-1",
