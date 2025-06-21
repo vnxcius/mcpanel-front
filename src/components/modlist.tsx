@@ -5,10 +5,10 @@ import { matchSorter } from "match-sorter";
 import { useToast } from "@/contexts/ToastContext";
 import UploadMods from "./upload-mods";
 import useSound from "use-sound";
-import { deleteMod } from "@/app/actions";
 import { cn } from "@/lib/utils";
 import ModListItems from "./modlist-items";
 import { useModlist } from "@/providers/ModlistProvider";
+import { useSession } from "@/contexts/SessionContext";
 
 export interface Mod {
   name: string;
@@ -22,6 +22,7 @@ export default function Modlist() {
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [targetMod, setTargetMod] = useState<Mod | null>(null);
+  const { session } = useSession();
 
   const [isPending, startTransition] = useTransition();
   const [click] = useSound("/sounds/click.mp3", { volume: 0.1 });
@@ -94,19 +95,25 @@ export default function Modlist() {
   const handleDelete = async (name: string) => {
     setToastState({ type: "info", message: "Removendo mod..." });
     try {
-      const res = await deleteMod(name);
-
-      if (res.type === "error") {
-        noteblock_bass();
-        console.log(res.message);
-        setToastState(res);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v2/signed/mod/delete/${name}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${session.id}`,
+          },
+        },
+      );
+      if (!res.ok) {
+        const data = await res.json();
+        setToastState({ type: "error", message: data.error });
         return;
       }
 
+      successful_hit();
       setSearch("");
       setModalOpen(false);
       setTargetMod(null);
-      successful_hit();
       setToastState({ type: "success", message: "Mod removido com sucesso!" });
     } catch (err) {
       noteblock_bass();

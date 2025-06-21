@@ -3,9 +3,9 @@
 import { useTransition } from "react";
 import { SquareIcon } from "@phosphor-icons/react";
 import { useToast } from "@/contexts/ToastContext";
-import { stopServer } from "@/app/actions";
 import useSound from "use-sound";
 import { useServerStatus } from "@/providers/StatusProvider";
+import { useSession } from "@/contexts/SessionContext";
 
 interface StopButtonProps {
   onStopInitiated: () => void;
@@ -15,6 +15,7 @@ export default function ButtonStop({ onStopInitiated }: StopButtonProps) {
   const { setToastState } = useToast();
   const { status } = useServerStatus();
   const [isPending, startTransition] = useTransition();
+  const { session } = useSession();
   const [click] = useSound("/sounds/click.mp3", { volume: 0.1 });
 
   const handleStop = () => {
@@ -23,15 +24,26 @@ export default function ButtonStop({ onStopInitiated }: StopButtonProps) {
     startTransition(async () => {
       onStopInitiated();
       try {
-        const response = await stopServer();
-        if (response.type !== "success") {
-          setToastState({
-            type: response.type,
-            message: response.message || "Erro desconhecido",
-          });
-          return;
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/v2/signed/server/stop`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${session.id}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        if (!res.ok) {
+          const data = await res.json();
+          return setToastState({ type: "error", message: data.message });
         }
-        setToastState({ type: response.type, message: response.message });
+
+        return setToastState({
+          type: "info",
+          message: "Desligando o servidor...",
+        });
       } catch (error) {
         if (error instanceof Error) {
           return setToastState({ type: "error", message: error.message });

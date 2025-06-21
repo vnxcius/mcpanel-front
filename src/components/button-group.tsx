@@ -8,7 +8,7 @@ import { useToast } from "@/contexts/ToastContext";
 import { useServerStatus } from "@/providers/StatusProvider";
 
 export default function ButtonGroup() {
-  const status = useServerStatus();
+  const { status } = useServerStatus();
 
   const { setToastState } = useToast();
   const [isAwaitingStartResult, setIsAwaitingStartResult] = useState(false);

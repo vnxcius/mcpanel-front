@@ -3,9 +3,9 @@
 import { useTransition } from "react";
 import { ArrowsClockwiseIcon } from "@phosphor-icons/react";
 import { useToast } from "@/contexts/ToastContext";
-import { restartServer } from "@/app/actions";
 import useSound from "use-sound";
 import { useServerStatus } from "@/providers/StatusProvider";
+import { useSession } from "@/contexts/SessionContext";
 
 interface RestartButtonProps {
   onRestartInitiated: () => void;
@@ -17,6 +17,7 @@ export default function ButtonRestart({
   const { setToastState } = useToast();
   const { status } = useServerStatus();
   const [isPending, startTransition] = useTransition();
+  const { session } = useSession();
   const [click] = useSound("/sounds/click.mp3", { volume: 0.1 });
 
   const handleRestart = () => {
@@ -25,15 +26,26 @@ export default function ButtonRestart({
     startTransition(async () => {
       onRestartInitiated();
       try {
-        const response = await restartServer();
-        if (response.type !== "success") {
-          setToastState({
-            type: response.type,
-            message: response.message || "Erro desconhecido",
-          });
-          return;
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/v2/signed/server/restart`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${session.id}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        if (!res.ok) {
+          const data = await res.json();
+          return setToastState({ type: "error", message: data.message });
         }
-        setToastState({ type: response.type, message: response.message });
+
+        return setToastState({
+          type: "info",
+          message: "Reiniciando o servidor...",
+        });
       } catch (error) {
         if (error instanceof Error) {
           return setToastState({ type: "error", message: error.message });
