@@ -23,7 +23,7 @@ const geist = Geist({
 type FileStatus = "pending" | "uploading" | "success" | "error";
 type UIFile = { file: File; status: FileStatus; errorReason?: string };
 
-export default function UploadMods({ apiUrl }: { apiUrl: string }) {
+export default function UploadMods() {
   const [dragOver, setDragOver] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [files, setFiles] = useState<UIFile[]>([]);

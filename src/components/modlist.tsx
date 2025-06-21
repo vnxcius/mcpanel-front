@@ -30,9 +30,6 @@ export default function Modlist() {
   });
   const { setToastState } = useToast();
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (!apiUrl) throw new Error("NEXT_PUBLIC_API_URL not found.");
-
   /** Normalise: lower‑case & strip space, underscore, hyphen */
   const normalize = (txt: string) => txt.toLowerCase().replace(/[\s_-]+/g, "");
 
@@ -121,7 +118,7 @@ export default function Modlist() {
     <>
       <h2 className="text-accent text-xl">Modlist</h2>
       <hr className="-mt-1 border-neutral-800" />
-      <UploadMods apiUrl={apiUrl} />
+      <UploadMods />
       <input
         type="text"
         placeholder="Pesquisar mods..."
