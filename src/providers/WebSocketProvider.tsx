@@ -3,11 +3,11 @@
 import { createContext, useContext, useEffect, useRef } from "react";
 import { useToast } from "@/contexts/ToastContext";
 import { ServerStatus, useServerStatus } from "./StatusProvider";
-import { ModlistJSON } from "@/components/modlist";
+import { Mod } from "@/components/modlist";
 
 type WSMsg =
   | { type: "status_update"; payload: { status: ServerStatus } }
-  | { type: "modlist_update"; payload: { mods: ModlistJSON[] } }
+  | { type: "modlist_update"; payload: { mods: Mod[] } }
   | { type: "log_snapshot"; payload: { lines: string[] } }
   | { type: "log_append"; payload: { lines: string[] } };
 
