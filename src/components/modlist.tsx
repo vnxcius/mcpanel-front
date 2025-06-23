@@ -12,6 +12,8 @@ import { useSession } from "@/contexts/SessionContext";
 
 export interface Mod {
   name: string;
+  size: number;
+  modTime: number;
 }
 export interface ModlistJSON {
   mods: Mod[];
@@ -151,6 +153,7 @@ export default function Modlist() {
         </p>
         <ul className={cn("flex flex-col items-start gap-1")}>
           <ModListItems
+            sessionId={session.id}
             modlist={modlist}
             filtered={filtered}
             highlight={highlight}

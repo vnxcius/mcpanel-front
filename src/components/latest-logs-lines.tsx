@@ -38,13 +38,7 @@ const LatestLogsLines = forwardRef<HTMLDivElement, LogLinesProps>(
       >
         {filtered.length ? (
           filtered.map((line, i) => (
-            <p
-              key={i}
-              className={cn(
-                "text-xs break-words whitespace-pre-wrap",
-                colorLine(line),
-              )}
-            >
+            <p key={i} className={cn("w-max text-xs", colorLine(line))}>
               {line}
             </p>
           ))

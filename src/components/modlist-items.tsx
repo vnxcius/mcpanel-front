@@ -1,23 +1,65 @@
 import {
+  CircleNotchIcon,
   CopyIcon,
   DownloadIcon,
   SpinnerGapIcon,
   TrashSimpleIcon,
 } from "@phosphor-icons/react";
 import { Mod } from "./modlist";
-import { JSX } from "react";
+import { JSX, useState } from "react";
+import { Session } from "@prisma/client";
+import { useToast } from "@/contexts/ToastContext";
 
 export default function ModListItems({
+  sessionId,
   modlist,
   filtered,
   highlight,
   handleDeleteClick,
 }: {
+  sessionId: Session["id"];
   modlist: Mod[] | undefined;
   filtered: Mod[];
   highlight: (name: string) => JSX.Element | string;
   handleDeleteClick: (mod: Mod) => void;
 }) {
+  const { setToastState } = useToast();
+  const [downloading, setDownloading] = useState<string | null>(null);
+
+  const handleDownloadClick = async (name: string) => {
+    setDownloading(name);
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v2/signed/mod/download/${name}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${sessionId}`,
+          },
+        },
+      );
+
+      if (!res.ok) {
+        const data = await res.json();
+        setToastState({ type: "error", message: data.error });
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name + ".jar";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+      setToastState({ type: "error", message: "Erro ao baixar o mod." });
+    } finally {
+      setDownloading(null);
+    }
+  };
+
   if (!modlist?.length) {
     return (
       <li className="my-5 w-full">
@@ -46,7 +88,7 @@ export default function ModListItems({
           <button
             title={mod.name}
             onClick={() => navigator.clipboard.writeText(mod.name)}
-            className="group flex w-56 items-start truncate text-sm text-gray-300"
+            className="group flex w-56 items-center truncate text-sm text-gray-300"
           >
             <span className="text-accent mr-1">
               {filtered.indexOf(mod) + 1}.
@@ -60,12 +102,23 @@ export default function ModListItems({
             />
           </button>
 
-          <div className="flex items-center gap-2">
+          <div
+            className="flex items-center gap-2"
+            onClick={() => handleDownloadClick(mod.name)}
+          >
             <button
               className="w-fit min-w-4 flex-1 cursor-pointer text-blue-500"
               title="Download"
             >
-              <DownloadIcon size={18} weight="bold" />
+              {downloading === mod.name ? (
+                <CircleNotchIcon
+                  size={18}
+                  weight="bold"
+                  className="animate-spin"
+                />
+              ) : (
+                <DownloadIcon size={18} weight="bold" />
+              )}
             </button>
 
             <button
