@@ -1,20 +1,26 @@
-// components/modlist/ModActionButtons.tsx
 "use client";
 
-import { useState, useTransition } from "react";
+import { ChangeEvent, DragEvent, useRef, useState, useTransition } from "react";
 import {
   DownloadIcon,
   TrashSimpleIcon,
   CircleNotchIcon,
+  ArrowsClockwiseIcon,
+  UploadIcon,
 } from "@phosphor-icons/react";
 import useSound from "use-sound";
 import { useSession } from "@/contexts/SessionContext";
 import { useToast } from "@/contexts/ToastContext";
+import { cn } from "@/lib/utils";
 
 export function ModlistAction({ name }: { name: string }) {
   const [downloading, setDownloading] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalUpdateOpen, setModalUpdateOpen] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const { session } = useSession();
   const { setToastState } = useToast();
@@ -96,9 +102,68 @@ export function ModlistAction({ name }: { name: string }) {
     }
   };
 
+  const handleUpdateClick = () => {
+    setModalUpdateOpen(true);
+  };
+
+  const handleSelect = (e: ChangeEvent<HTMLInputElement>) => {
+    addFile(e.target.files![0]);
+    e.target.value = "";
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDragOver(false);
+    addFile(Array.from(e.dataTransfer.files)[0]);
+  };
+
+  const addFile = async (incoming: File) => {
+    const formData = new FormData();
+    formData.append("file", incoming);
+
+    startTransition(async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/v2/signed/mod/update/${name}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${session.id}`,
+            },
+            body: formData,
+          },
+        );
+        if (!res.ok) {
+          const data = await res.json();
+          setToastState({ type: "error", message: data.error });
+          return;
+        }
+        setModalUpdateOpen(false);
+        successful_hit();
+        setToastState({
+          type: "success",
+          message: "Mod atualizado com sucesso!",
+        });
+      } catch (err) {
+        noteblock_bass();
+        setModalUpdateOpen(false);
+        const message =
+          err instanceof Error ? err.message : "Erro desconhecido";
+        setToastState({ type: "error", message });
+      }
+    });
+  };
+
   return (
     <>
-      <div className="flex justify-end gap-2">
+      <div className="flex gap-2">
+        <button
+          onClick={handleUpdateClick}
+          title="Atualizar"
+          className="cursor-pointer text-emerald-500"
+        >
+          <ArrowsClockwiseIcon size={18} weight="bold" />
+        </button>
         <button
           onClick={handleDownloadClick}
           title="Download"
@@ -119,7 +184,7 @@ export function ModlistAction({ name }: { name: string }) {
         </button>
       </div>
 
-      {/* --- Modal ---------------------------------------------------- */}
+      {/* --- Modal -------------------------------------------------------- */}
       {modalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 text-base"
@@ -164,6 +229,60 @@ export function ModlistAction({ name }: { name: string }) {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* --- Modal Update ------------------------------------------------- */}
+      {modalUpdateOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 text-base"
+          onClick={(e) => {
+            // block backdrop click while pending
+            if (!isPending) setModalUpdateOpen(false);
+            e.stopPropagation();
+          }}
+        >
+          <div
+            className={cn(
+              "w-full max-w-md rounded-md border border-neutral-800 bg-neutral-950 p-6 text-center shadow-lg",
+              dragOver && "border-emerald-500",
+            )}
+            onClick={(e) => e.stopPropagation()}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOver(true);
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={handleDrop}
+          >
+            <h3 className="mb-1.5 text-lg leading-none text-emerald-500">
+              Atualizar o mod:
+            </h3>
+            <p className="text-sm break-words whitespace-pre-wrap text-neutral-500">
+              {name}
+            </p>
+
+            <div
+              onClick={() => inputRef.current?.click()}
+              className={cn(
+                "mx-auto mt-7 flex max-w-sm cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed px-4 py-5 text-center break-words transition-colors",
+                dragOver
+                  ? "border-emerald-500 bg-neutral-800 text-emerald-400 brightness-100"
+                  : "border-neutral-700 text-neutral-500 hover:border-emerald-500 hover:text-emerald-400",
+              )}
+            >
+              <UploadIcon size={18} weight="bold" className="min-w-5" />
+              <p>Clique aqui ou arraste arquivos .JAR</p>
+              <input
+                ref={inputRef}
+                type="file"
+                name="file"
+                accept=".jar"
+                className="hidden"
+                onChange={handleSelect}
+              />
+            </div>
           </div>
         </div>
       )}
