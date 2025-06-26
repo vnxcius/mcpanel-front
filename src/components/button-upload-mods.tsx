@@ -5,7 +5,6 @@ import { cn, formatFileSize } from "@/lib/utils";
 import {
   CheckCircleIcon,
   CircleNotchIcon,
-  FileTextIcon,
   UploadIcon,
   WarningIcon,
   XIcon,
@@ -23,7 +22,7 @@ const geist = Geist({
 type FileStatus = "pending" | "uploading" | "success" | "error";
 type UIFile = { file: File; status: FileStatus; errorReason?: string };
 
-export default function UploadMods() {
+export default function ButtonUploadMods() {
   const [dragOver, setDragOver] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [files, setFiles] = useState<UIFile[]>([]);
@@ -139,19 +138,13 @@ export default function UploadMods() {
 
   return (
     <>
-      <div className="grid grid-cols-2 place-items-stretch gap-2">
-        <button
-          onClick={openModal}
-          className="flex items-center justify-center-safe gap-1 rounded-md border border-neutral-800 bg-neutral-900 px-2 py-1 text-gray-300 hover:border-green-500 hover:bg-neutral-800 hover:text-green-500"
-        >
-          <UploadIcon size={18} weight="bold" className="min-w-5" />
-          <p className={`text-sm ${geist.className}`}>Upload mods</p>
-        </button>
-        <button className="flex items-center justify-center-safe gap-1 rounded-md border border-neutral-800 bg-neutral-900 px-2 py-1 text-gray-300 hover:border-green-500 hover:bg-neutral-800 hover:text-green-500">
-          <FileTextIcon size={18} weight="bold" className="min-w-5" />
-          <p className={`text-sm ${geist.className}`}>Changelog</p>
-        </button>
-      </div>
+      <button
+        onClick={openModal}
+        className="flex items-center justify-center-safe gap-1 rounded-md border border-neutral-800 bg-neutral-900 px-2 py-1 text-gray-300 hover:border-green-500 hover:bg-neutral-800 hover:text-green-500"
+      >
+        <UploadIcon size={18} weight="bold" className="min-w-5" />
+        <p className={`text-sm ${geist.className}`}>Upload mods</p>
+      </button>
 
       {/* --- Modal ---------------------------------------------------- */}
       {modalOpen && (
@@ -165,7 +158,7 @@ export default function UploadMods() {
         >
           <div
             className={cn(
-              "mx-4 h-96 w-full max-w-2xl rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-center shadow-lg transition",
+              "mx-4 h-4/5 w-full max-w-2xl rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-center transition",
               dragOver && "border-green-500 brightness-50",
             )}
             onClick={(e) => e.stopPropagation()}

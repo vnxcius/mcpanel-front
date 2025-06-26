@@ -1,9 +1,10 @@
 "use client";
 
-import UploadMods from "./upload-mods";
 import { cn } from "@/lib/utils";
 import { columns } from "@/app/home/columns";
 import { DataTable } from "@/app/home/data-table";
+import ButtonChangelog from "./button-changelog";
+import ButtonUploadMods from "./button-upload-mods";
 
 export interface Mod {
   name: string;
@@ -19,7 +20,10 @@ export default function Modlist() {
     <>
       <h2 className="text-accent text-xl">Modlist</h2>
       <hr className="-mt-1 border-neutral-800" />
-      <UploadMods />
+      <div className="grid grid-cols-2 place-items-stretch gap-2">
+        <ButtonUploadMods />
+        <ButtonChangelog />
+      </div>
 
       <div
         className={cn(

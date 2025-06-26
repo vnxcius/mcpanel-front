@@ -4,12 +4,17 @@ import { createContext, useContext, useEffect, useRef } from "react";
 import { useToast } from "@/contexts/ToastContext";
 import { ServerStatus, useServerStatus } from "./StatusProvider";
 import { Mod } from "@/components/modlist";
+import { ModChangelog } from "./ModChangelogProvider";
 
 type WSMsg =
   | { type: "status_update"; payload: { status: ServerStatus } }
   | { type: "modlist_update"; payload: { mods: Mod[] } }
   | { type: "log_snapshot"; payload: { lines: string[] } }
-  | { type: "log_append"; payload: { lines: string[] } };
+  | { type: "log_append"; payload: { lines: string[] } }
+  | {
+      type: "modlist_changelog_update";
+      payload: [ModChangelog];
+    };
 
 interface WSContext {
   addListener(cb: (m: WSMsg) => void): () => void;
