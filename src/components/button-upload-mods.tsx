@@ -195,7 +195,7 @@ export default function ButtonUploadMods() {
             <hr className="my-3.5 border-neutral-800" />
 
             {files.length ? (
-              <div className="flex h-60 flex-col overflow-y-auto">
+              <div className="flex max-h-96 flex-col overflow-y-auto">
                 {files.map(({ file, status, errorReason }, i) => (
                   <div
                     key={file.name + i}

@@ -93,11 +93,13 @@ export default function TokenInput() {
     }
   };
 
+  const password = form.watch("password");
   useEffect(() => {
     if (toastState.type === "error" || toastState.type === "warning") {
       setToastState(initialState);
     }
-  }, [form.watch("password")]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [password]);
   return (
     <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="my-4">
       <div className="mt-14 mb-2 space-y-2">

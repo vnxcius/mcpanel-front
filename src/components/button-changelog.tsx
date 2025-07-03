@@ -1,12 +1,9 @@
 import { cn, formatDateTime } from "@/lib/utils";
-import {
-  ModChangelog,
-  useModChangelog,
-} from "@/providers/ModChangelogProvider";
 import { FileTextIcon } from "@phosphor-icons/react";
 import { Geist, Space_Mono } from "next/font/google";
 import { useState } from "react";
 import { format } from "date-fns";
+import { ModChangelog, useModlist } from "@/providers/ModlistProvider";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -22,9 +19,9 @@ const spaceMono = Space_Mono({
 
 export default function ButtonChangelog() {
   const [modalOpen, setModalOpen] = useState(false);
-  const changes = useModChangelog();
+  const { changelog } = useModlist();
 
-  const grouped = changes.reduce(
+  const grouped = changelog.reduce(
     (acc, change) => {
       const date = format(new Date(change.time), "dd/MM/yyyy");
       acc[date] ||= [];

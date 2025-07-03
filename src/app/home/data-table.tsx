@@ -31,9 +31,9 @@ export function DataTable({ columns }: DataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-  const modlist = useModlist();
+  const { mods } = useModlist();
   const table = useReactTable({
-    data: modlist,
+    data: mods,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,

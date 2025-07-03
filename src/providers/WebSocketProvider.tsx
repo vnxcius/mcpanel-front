@@ -4,17 +4,27 @@ import { createContext, useContext, useEffect, useRef } from "react";
 import { useToast } from "@/contexts/ToastContext";
 import { ServerStatus, useServerStatus } from "./StatusProvider";
 import { Mod } from "@/components/modlist";
-import { ModChangelog } from "./ModChangelogProvider";
+import { ModChangelog } from "./ModlistProvider";
 
 type WSMsg =
   | { type: "status_update"; payload: { status: ServerStatus } }
-  | { type: "modlist_update"; payload: { mods: Mod[] } }
+  | { type: "modlist"; payload: { mods: Mod[] } }
   | { type: "log_snapshot"; payload: { lines: string[] } }
   | { type: "log_append"; payload: { lines: string[] } }
   | {
-      type: "modlist_changelog_update";
+      type: "modlist_changelog";
       payload: [ModChangelog];
+    }
+  | {
+      type: "mod_added" | "mod_deleted" | "mod_updated";
+      payload: ModChangeEntry;
     };
+
+interface ModChangeEntry {
+  name: string;
+  time: Date;
+  type: "added" | "deleted" | "updated";
+}
 
 interface WSContext {
   addListener(cb: (m: WSMsg) => void): () => void;
@@ -100,6 +110,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       clearTimeout(retryTimeoutRef.current as NodeJS.Timeout);
       wsRef.current?.close();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addListener = (cb: (m: WSMsg) => void) => {
