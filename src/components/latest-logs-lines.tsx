@@ -1,6 +1,6 @@
 "use client";
 
-import { SpinnerGapIcon, TerminalIcon } from "@phosphor-icons/react";
+import { SpinnerGapIcon } from "@phosphor-icons/react";
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
 import { Noto_Sans_Mono } from "next/font/google";
