@@ -59,6 +59,9 @@ const LatestLogsLines = forwardRef<HTMLDivElement, LogLinesProps>(
           )}
           onSubmit={async (e) => {
             e.preventDefault();
+            const form = e.currentTarget;
+            const data = new FormData(form);
+            const command = data.get("command")?.toString() ?? "";
 
             try {
               const res = await fetch(
@@ -70,14 +73,12 @@ const LatestLogsLines = forwardRef<HTMLDivElement, LogLinesProps>(
                     "Content-Type": "application/json",
                   },
                   body: JSON.stringify({
-                    command: e.currentTarget.command.value,
+                    command: command,
                   }),
                 },
               );
 
-              if (res.ok) {
-                e.currentTarget.command.value = "";
-              }
+              if (res.ok) form.reset();
             } catch (error) {
               console.log(error);
             }
