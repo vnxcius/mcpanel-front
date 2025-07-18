@@ -9,6 +9,7 @@ import ButtonGroup from "./button-group";
 import useSound from "use-sound";
 import LatestLogsLines from "./latest-logs-lines";
 import { useLogLines } from "@/providers/LogProvider";
+import { useSession } from "@/contexts/SessionContext";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -17,6 +18,7 @@ const geist = Geist({
 });
 
 export default function LatestLog() {
+  const { session } = useSession();
   const [search, setSearch] = useState("");
   const [filterLevel, setFilterLevel] = useState<
     "error" | "warn" | "info" | null
@@ -44,7 +46,7 @@ export default function LatestLog() {
   }, [logLines, search, filterLevel]);
 
   useLayoutEffect(() => {
-    if (logRef.current) {
+    if (logRef.current && logRef.current.scrollHeight === 0) {
       logRef.current.scrollTop = logRef.current.scrollHeight;
     }
   }, [filtered]);
@@ -142,6 +144,7 @@ export default function LatestLog() {
         colorLine={colorLine}
         filtered={filtered}
         isLoading={logLines.length <= 0}
+        session={session}
       />
 
       <div className="mt-2 flex items-start justify-between">

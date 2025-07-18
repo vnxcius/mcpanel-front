@@ -38,7 +38,7 @@ export default function ServerInfo() {
   const fetchServerInfo = async () => {
     startTransition(async () => {
       const response = await fetch(
-        "https://api.mcstatus.io/v2/status/java/ronaldo.vncius.dev",
+        "https://api.mcstatus.io/v2/status/java/mc.vncius.dev",
       );
       const data = (await response.json()) as ServerInfo;
       setData(data);
@@ -98,7 +98,7 @@ export default function ServerInfo() {
           <div className="flex items-center justify-between">
             <p
               className="text-neutral-500"
-              title={data?.players?.list?.join(", ")}
+              title={data?.players?.list?.map((p) => p.name_raw).join(", ")}
             >
               Online:{" "}
               <span className="text-green-500">{data.players?.online}</span>

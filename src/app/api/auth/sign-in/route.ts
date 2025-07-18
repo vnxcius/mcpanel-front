@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
         { status: 401 },
       );
     }
-    
+
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, user.id);
     await setSessionTokenCookie(sessionToken, session.expires_at);
